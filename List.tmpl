@@ -1,0 +1,175 @@
+#include "List.hpp"
+#include <iostream>
+#include <fstream>
+#include <algorithm> //FIXME: to make my own
+
+template<typename T>
+ void List<T>::copyFrom(const List<T>& other){
+   m_size= other.m_size;
+   m_capacity =other.m_capacity;
+   m_array= new T[m_capacity];
+   for(int i=0; i<m_size; i++){
+     m_array[i]= other.m_array[i];
+   }
+ }
+
+ template<typename T>
+  void List<T>::clear()
+  {
+    delete[] m_array;
+  }
+
+  template<typename T>
+  void List<T>::resize(int newCapacity)
+  {
+    if(m_capacity< newCapacity)
+    {
+      m_capacity =newCapacity;
+      T* new_array= new T[newCapacity];
+      for(int i=0; i<m_size;i++)
+      {
+        new_array[i]=m_array[i];
+      }
+      delete[] m_array;
+      m_array = new_array;
+    }
+  }
+ 
+   //--The Big 4--
+  template<typename T>
+  List<T>::List(int capacity): m_size(0),
+                               m_capacity(std::max(capacity, 5)) //FIXME: to make it withouth a magic number
+  {  
+    m_array= new T[m_capacity];
+  }
+
+  template<typename T>
+  List<T>::List(const List& other)
+  {
+    if(this!=&other){
+      copyFrom(other);
+    }
+  }
+
+  template<typename T>
+  List<T>& List<T>::operator=(const List& other)
+  {
+    if(this!=&other){
+      clear();
+      copyFrom(other);
+    }
+    return *this;
+  }
+
+  template<typename T>
+  List<T>::~List()
+  {
+    clear();
+    std::cout<<"List destroyer called"<<std::endl;
+  }
+
+  //--getters--
+
+template<typename T>
+  int List<T>::getSize()const
+  {
+    return m_size;
+  }
+
+template<typename T>
+  int List<T>::getCapacity() const
+  {
+    return m_capacity;
+  }
+
+template<typename T>
+  T& List<T>::getElement(int index)
+  {
+      return m_array[index];
+  }
+
+template<typename T>
+  const T List<T>::getElement(int index) const
+  {
+      return m_array[index];
+  }
+
+//--methods for elements--
+  template<typename T>
+  void List<T>::addElement(const T& newElement)
+  {
+    std::cout<<"Im inside add element for list"<<std::endl;
+     if(m_size==m_capacity)
+     {
+       resize(m_capacity*2);
+       std::cout<<"Im gonna resize and now list has capacity of"<<m_capacity<<std::endl;
+     }
+     std::cout<<"now i wand to add element"<<std::endl;
+    m_array[m_size] = newElement;  
+    std::cout<<"Ive added element to list"<<newElement<<std::endl;
+    m_size++;
+    std::cout<<"element added and now it has size"<<m_size<<std::endl;
+  }
+
+  template<typename T>
+  void List<T>::deleteElement(int index)
+  {
+    m_size--;                         //"shrinks" the list by 1
+    for(int i=index; i<m_size; i++)   //shifts all elements > index
+    {
+      m_array[i] = m_array[i+1];
+    }
+
+  }
+
+  //--operators overloading
+
+  template<typename T>
+  T& List<T>::operator[](int index)
+  {
+     return m_array[index];
+  }
+
+ template<typename T>
+  const T& List<T>::operator[](int index)const
+  {
+       return m_array[index];
+  }
+
+  template<typename T>
+  std::ostream& operator<<(std::ostream& out,const List<T>& object)
+  {
+    out<< "{ ";
+     for(int i=0; i<object.getSize(); i++)
+     {
+         out<<object[i]<<" ";
+     }
+    out<<"}";
+    return out;
+  }
+
+  //--(de)serialization (file methods)--
+
+  template<typename T>
+  void List<T>::serialize(std::ofstream& outFile)
+  {
+      outFile.write((const char*) &m_size, sizeof(m_size));
+      outFile.write((const char*) &m_capacity,sizeof(m_capacity));
+      for(int i=0; i<m_size; i++)
+      {
+        m_array[i].serialize(outFile);
+      }
+  }
+
+  template<typename T>
+  void List<T>::deserialize(std::ifstream& inFile) const
+  {
+    clear();
+    inFile.read((char*) &m_size, sizeof(m_size));
+    inFile.read((char*) &m_capacity,sizeof(m_capacity));
+    m_array= new T[m_capacity];
+      for(int i=0; i<m_size; i++)
+      {
+        m_array[i]=T(inFile);
+      }
+  }
