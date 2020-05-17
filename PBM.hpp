@@ -35,6 +35,14 @@ class PBM  //  : //public IImage
    const char* getType() const  ;
     char getAtIndex(int row, int col) ;
     void  setAtIndex(int row, int col, char value) ;
+    void printPBM();
+
+    //==images methods
+     // void grayscale()=0; NOT allowed !!
+    //void monochrome()=0; NOT allowed!!
+     void negative();
+     PBM& rotate(const char* direction);
+   //IImage& collage(const char* direction, IImage& other) =0;
 
    //==files methods
    friend PBM& readPBMFromASCIIFile(std::ifstream& infile);

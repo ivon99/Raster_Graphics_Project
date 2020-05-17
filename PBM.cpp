@@ -61,8 +61,6 @@ char convertBinaryToChar(int int_sequence[])
   return value;
 }
 
-
-
   PBM::PBM()
   {
       m_rows=0;
@@ -85,20 +83,9 @@ char convertBinaryToChar(int int_sequence[])
         for(int j=0; j<m_col;j++)
         {
             m_bitmap[i][j]=0;
-           // cout<<"At [" <<i<<"]["<<j<<"]:";
-           // cout<<m_bitmap[i][j];
         }
-        //cout<<endl;
     }
-    /*
-     m_bitmap = new char *[m_rows];
-    for(int i = 0; i < m_rows; i++)
-    {
-        pixelVal[i] = new int [m_col];
-        for(int j = 0; j < m_col; j++)
-            m_bitmap[i][j] = 0;
-    } */
-    std::cout<<"PBM constructor called, created map with dimensions rows:"<<m_rows<<"xcol:"<<m_col;
+    std::cout<<"PBM constructor called, created map with dimensions rows:"<<m_rows<<"xcol:"<<m_col<<endl;
  }
 
 PBM::PBM(const PBM& other)
@@ -127,29 +114,96 @@ PBM& PBM::operator=(const PBM& other)
 const char* PBM::getType() const {
    return "PBM";
 }
-/*
-char PBM::getAtIndex(int row, int col)
-{
-  return m_bitmap[row][col];
-}
-
-void PBM::setAtIndex(int row, int col, char value)
-{
-  m_bitmap[row][col] = value;
-} */
 
 char PBM::getAtIndex(int row, int col)
-/*returns the gray value of a specific pixel*/
 {
     return m_bitmap[row][col];
 }
 
+void PBM::printPBM()
+{
+   for (int i=0; i<m_rows; i++) {
+        for(int j=0; j<m_col;j++)
+        {
+            char value=m_bitmap[i][j];
+            if(value==0)
+            {
+              cout<<0;
+            }
+            if(value==1)
+            {
+              cout<<1;
+            }
+        }
+        cout<<endl;
+    }
+}
+
+void PBM::negative()
+{
+   for (int i=0; i<m_rows; i++) {
+        for(int j=0; j<m_col;j++)
+        {
+          if(m_bitmap[i][j]==0)
+          {
+              m_bitmap[i][j]=1;
+              continue;
+          }
+          if(m_bitmap[i][j]==1)
+          {
+             m_bitmap[i][j]=0;
+             continue;
+          }
+        }
+    }
+}
+
+ PBM& PBM::rotate(const char* direction)
+ {
+   PBM* new_PBM = new PBM(m_col,m_rows);
+   
+   if(strcmp(direction,"left")==0)
+   {
+     int tmp=m_col-1;
+     for (int i=0; i<new_PBM->m_rows; i++) {
+        for(int j=0; j<new_PBM->m_col;j++)
+        {
+            new_PBM->m_bitmap[i][j]= m_bitmap[j][tmp];
+        }
+
+        tmp--;
+    }
+    cout<<"I have performed left rotation"<<endl;
+    return *new_PBM;
+   }
+
+   if(strcmp(direction, "right")==0)
+   {
+      int tmp_row;
+      cout<<"I will be performinf right"<<endl;
+     for (int i=0; i<new_PBM->m_rows; i++) {
+        tmp_row=new_PBM->m_rows;
+        for(int j=0; j<new_PBM->m_col;j++)
+        {
+            new_PBM->m_bitmap[i][j]= m_bitmap[tmp_row][i];
+            cout<<"["<<i<<"]["<<j<<"]"<<"="<<"["<<tmp_row<<"]["<<i<<"] ";
+            tmp_row--;
+        }
+        cout<<endl;
+    }
+    cout<<"I have performed right rotation"<<endl;
+   return *new_PBM;
+   }
+   
+ }
 
 void PBM::setAtIndex(int row, int col, char value)
-/*sets the gray value of a specific pixel*/
 {
     m_bitmap[row][col] = value;
 }
+
+//==images methods
+
 
 
 //==file methods
@@ -195,7 +249,6 @@ PBM& readPBMFromASCIIFile(std::ifstream& infile)
         std::cout<<"At row["<<i<<"] col["<<j<<"] = ";
         new_PBM->m_bitmap[i][j]=value;
         std::cout<<new_PBM->m_bitmap[i][j]<<endl;
-        //cout<<new_PBM->m_bitmap[i][j];
       }
       std::cout<<endl;
    }

@@ -45,7 +45,7 @@ bool importImagefromFile(const char *filename)
         if(strcmp(magic_number,"P1")==0)
         {
             //PBM* new_pbm = new PBM();
-            PBM* new_PBM =&readPBMFromASCIIFile(infile);
+           readPBMFromASCIIFile(infile);
             cout << "Succesfully read from txt .pbm from " << filename << endl;
         infile.close();
         return true;
@@ -105,6 +105,7 @@ bool importImagefromFile(const char *filename)
             return false;
         }
     }
+    return false;
 }
 
 
@@ -114,15 +115,32 @@ int main()
     cout<<"Welcome to hell"<<endl;
     //importImagefromFile("binary_example");
    // PBM test = readPBMFromASCIIFile("j.pbm");
-   PBM test(10,6);
-   std::ofstream outfile("outputbinaryfile.txt");
+   PBM test(4,3);
+   test.setAtIndex(2,3,1);
+   test.setAtIndex(1,0,1);
+   test.setAtIndex(0,0,1);
+   //test.negative();
+   test.printPBM();
+   //const char* direction = "left";
+     
+  // PBM* rotated= &test.rotate(direction);
+   //rotated->printPBM();
+
+  const char* r_direction = "right";
+
+   test.rotate(r_direction);
+   PBM* rotated_right = &test.rotate(r_direction);
+   rotated_right->printPBM();
+
+   //==test files
+  /* std::ofstream outfile("outputbinaryfile.txt");
    if(!outfile)
    {
        cout<<"Problem loading file"<<endl;
    }
 
    writePBMToBinaryFile(outfile,test);
-   outfile.close();
+   outfile.close(); */
    /*PBM* test = new PBM(10,6);
    cout<<"pls:"<<endl;
    char ch= test->getAtIndex(1,0);
