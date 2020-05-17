@@ -194,7 +194,68 @@ void PBM::negative()
     cout<<"I have performed right rotation"<<endl;
    return *new_PBM;
    }
-   
+
+ }
+
+ PBM& PBM::collage(const char* direction, PBM& other)
+ {
+    if(strcmp(direction,"horizontal")==0)
+    {
+      int new_size=m_col+other.m_col;
+     PBM* new_PBM = new PBM(m_rows,new_size);
+     //==joining first table
+     for (int i=0; i<m_rows; i++) {
+        for(int j=0; j<m_col;j++)
+        {
+            new_PBM->m_bitmap[i][j]=m_bitmap[i][j];
+        }
+    }
+    
+    //==joining second table
+    int col_num;
+    for(int i=0; i<m_rows;i++)
+    { 
+      col_num=0;
+       for(int j=m_col;j<new_size;j++)
+       {
+           new_PBM->m_bitmap[i][j] = other.m_bitmap[i][col_num];
+           col_num++;
+       }
+     }
+     cout<<"Ive sucesfully completed horizontal collage"<<endl;
+      return *new_PBM;
+    }
+
+    if(strcmp(direction,"vertical")==0)
+    {
+     int new_size=m_rows+other.m_rows;
+     PBM* new_PBM = new PBM(new_size,m_col);
+     //==joining first table
+     for (int i=0; i<m_rows; i++) {
+        for(int j=0; j<m_col;j++)
+        {
+            new_PBM->m_bitmap[i][j]=m_bitmap[i][j];
+        }
+    }
+    
+    //==joining second table
+    int row_num=0;
+    for(int i=m_rows; i<new_size;i++)
+    { 
+       for(int j=0;j<m_col;j++)
+       {
+           new_PBM->m_bitmap[i][j] = other.m_bitmap[row_num][j];
+       }
+       row_num++;
+     }
+     cout<<"Ive sucesfully completed horizontal collage"<<endl;
+      return *new_PBM;
+    }
+
+    else
+    {
+      cout<<"Invalid collage direction"<<endl;
+    }
  }
 
 void PBM::setAtIndex(int row, int col, char value)

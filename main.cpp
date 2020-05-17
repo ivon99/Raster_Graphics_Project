@@ -119,18 +119,29 @@ int main()
    test.setAtIndex(2,3,1);
    test.setAtIndex(1,0,1);
    test.setAtIndex(0,0,1);
-   //test.negative();
    test.printPBM();
+
+   PBM test2(4,3);
+   test2.setAtIndex(2,3,1);
+   test2.setAtIndex(1,0,1);
+   test2.setAtIndex(3,1,1);
+   test2.printPBM();
+
+   const char* direction = "vertical";
+  PBM* new_collage= &test.collage(direction,test2);
+  new_collage->printPBM();
+
+   //test.negative();
+   //test.printPBM();
    //const char* direction = "left";
      
   // PBM* rotated= &test.rotate(direction);
    //rotated->printPBM();
-
+  /*
   const char* r_direction = "right";
-
    test.rotate(r_direction);
    PBM* rotated_right = &test.rotate(r_direction);
-   rotated_right->printPBM();
+   rotated_right->printPBM(); */
 
    //==test files
   /* std::ofstream outfile("outputbinaryfile.txt");

@@ -42,7 +42,7 @@ class PBM  //  : //public IImage
     //void monochrome()=0; NOT allowed!!
      void negative();
      PBM& rotate(const char* direction);
-   //IImage& collage(const char* direction, IImage& other) =0;
+     PBM& collage(const char* direction, PBM& other);
 
    //==files methods
    friend PBM& readPBMFromASCIIFile(std::ifstream& infile);
