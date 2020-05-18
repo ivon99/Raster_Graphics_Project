@@ -3,7 +3,6 @@
 #include "IImage.hpp"
 #include <fstream>
 
-
 class PBM  //  : //public IImage
 {
   int m_rows;

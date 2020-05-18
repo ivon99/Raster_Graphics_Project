@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include "PBM.hpp"
+#include "PGM.hpp"
 using namespace std;
 /*
 bool open(const char *filename)
@@ -67,13 +68,23 @@ bool importImagefromFile(const char *filename)
         }
          if(strcmp(magic_number,"P2")==0)
         {
-           // readPGMfromASCIIFile();
-           //cout << "Succesfully read from txt .pgm from " << filename << endl;
+           readPGMFromASCIIFile(infile);
+           cout << "Succesfully read from txt .pgm from " << filename << endl;
         } 
         if(strcmp(magic_number,"P5")==0)
         {
-            //readPGMfromBinaryFile();
-             //cout << "Succesfully read from binary .pgm from " << filename << endl;
+            infile.close();
+            std::ifstream bin_infile(filename, std::ios::binary);
+            if(bin_infile){
+               readPGMFromBinaryFile(bin_infile);
+                cout << "Succesfully read from binary .pgm from " << filename << endl;
+            }
+            else
+            {
+                cout<<"Unable to open file!"<<endl;
+            }
+            bin_infile.close();
+            return true;
         }
          if(strcmp(magic_number,"P3")==0)
         {
@@ -113,9 +124,43 @@ bool importImagefromFile(const char *filename)
 int main()
 {
     cout<<"Welcome to hell"<<endl;
-    //importImagefromFile("binary_example");
-   // PBM test = readPBMFromASCIIFile("j.pbm");
-   PBM test(4,3);
+    PGM test(3,4);
+    test.setAtIndex(2,3,1);
+    test.setAtIndex(1,0,1);
+    //test.negative();
+    //test.printPGM(); 
+    //test.monochrome();
+    //test.printPGM();
+   /* std::ofstream outfile("output_PGM.txt");
+   if(!outfile)
+   {
+       cout<<"Problem loading file"<<endl;
+   }
+
+   writePGMToASCIIFile(outfile,test);
+   outfile.close(); */
+
+
+  /*  const char* r_rot = "right";
+    PGM* r_rotated = &test.rotate(r_rot);
+    r_rotated->printPGM();
+
+   const char* l_rot="left";
+    PGM* l_rotated=&test.rotate(l_rot);
+    l_rotated->printPGM(); 
+
+     const char* direction = "vertical";
+    PGM* new_collage= &test.collage(direction,test);
+    new_collage->printPGM();
+
+     const char* direction_h = "horizontal";
+    PGM* new_hcollage= &test.collage(direction_h,test);
+    new_hcollage->printPGM(); */
+
+  //  importImagefromFile("baboon.pgm");
+  // PGM* test = &readPGMFromASCIIFile("feep.pgm");
+
+   /*PBM test(4,3);
    test.setAtIndex(2,3,1);
    test.setAtIndex(1,0,1);
    test.setAtIndex(0,0,1);
@@ -125,11 +170,11 @@ int main()
    test2.setAtIndex(2,3,1);
    test2.setAtIndex(1,0,1);
    test2.setAtIndex(3,1,1);
-   test2.printPBM();
+   test2.printPBM(); 
 
    const char* direction = "vertical";
   PBM* new_collage= &test.collage(direction,test2);
-  new_collage->printPBM();
+  new_collage->printPBM(); */
 
    //test.negative();
    //test.printPBM();
@@ -144,14 +189,14 @@ int main()
    rotated_right->printPBM(); */
 
    //==test files
-  /* std::ofstream outfile("outputbinaryfile.txt");
+  std::ofstream outfile("outputbinaryfile.txt");
    if(!outfile)
    {
        cout<<"Problem loading file"<<endl;
    }
 
-   writePBMToBinaryFile(outfile,test);
-   outfile.close(); */
+   writePGMToBinaryFile(outfile,test);
+   outfile.close(); 
    /*PBM* test = new PBM(10,6);
    cout<<"pls:"<<endl;
    char ch= test->getAtIndex(1,0);

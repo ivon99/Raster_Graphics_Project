@@ -24,6 +24,7 @@ void PBM::copyFrom(const PBM& other)
    }
 }
 
+
 int* extractBits(char *ch)
 {
     int size = sizeof(ch);
@@ -59,7 +60,7 @@ char convertBinaryToChar(int int_sequence[])
   }
   std::cout<< "Final value after binary to char conversion is "<<value<<endl;
   return value;
-}
+} 
 
   PBM::PBM()
   {
@@ -182,7 +183,7 @@ void PBM::negative()
       int tmp_row;
       cout<<"I will be performinf right"<<endl;
      for (int i=0; i<new_PBM->m_rows; i++) {
-        tmp_row=new_PBM->m_rows;
+        tmp_row=m_rows-1;
         for(int j=0; j<new_PBM->m_col;j++)
         {
             new_PBM->m_bitmap[i][j]= m_bitmap[tmp_row][i];
@@ -415,7 +416,7 @@ void writePBMToASCIIFile(std::ofstream&outfile, PBM& obj)
    {
       for(int j=0;j<col; j++)
       {
-        outfile<<obj.m_bitmap[i][j]<<" ";
+        outfile<<(int)obj.m_bitmap[i][j]<<" ";
       }
       outfile<<endl;
    }
@@ -423,11 +424,11 @@ void writePBMToASCIIFile(std::ofstream&outfile, PBM& obj)
 }
 
 
-void writePBMToBinaryFile(std::ofstream&outfile, PBM& obj)
+void writePBMToBinaryFile(std::ofstream&outfile, PBM& obj) //FIXME: how do you read the extra bits
 {
      std::cout<<"Im inside write PBMToBinaryfile"<<endl;
     //==writes magic number 
-    const char magic_number[3]= "P1"; 
+    const char magic_number[3]= "P4"; 
     outfile<<magic_number<<"\n";
 
     //==writes comment
