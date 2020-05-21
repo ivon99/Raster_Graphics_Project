@@ -4,19 +4,22 @@
 
 class IImage
 {
-    public:
-    virtual const char* getType() const =0;
-    virtual char getAtIndex(int row, int col)=0;
-     virtual void  setAtIndex(int row, int col, char value)=0;
-    // void grayscale()=0; 
-    //void monochrome()=0; 
-     //void negative() =0;
-    //void rotate(const char* direction)=0;
-   //IImage& collage(const char* direction, IImage& other) =0;
+public:
+    virtual const char *getType() const = 0;
+    virtual const char* getFilename() const = 0;
+    virtual void setAtIndex(int row, int col, char value) = 0;
+    virtual void setFilname (const char* filename) =0;
+    virtual void print() = 0;
+    virtual void grayscale() = 0;
+    virtual void monochrome() = 0;
+    virtual void negative() = 0;
 
+    virtual IImage* rotate(const char *direction) = 0;
+    virtual void writeToASCIIFile(std::ofstream& outfile) =0;
+    virtual void writeToBinaryFile(std::ofstream& outfile) =0;
     virtual ~IImage()
     {
-     std::cout<<"IImage destructor called"<<std::endl; 
+        std::cout << "IImage destructor called" << std::endl;
     }
 };
 

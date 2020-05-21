@@ -62,6 +62,21 @@ char convertBinaryToCharPGM(int int_sequence[])
   return value;
 }
 
+unsigned char fromIntToCharPGM(int num)  //FIXME:
+{
+    int digit;
+    int exponent =0 ;
+    unsigned char value=0;
+    while(num>0)
+   {
+     digit=num%10;
+     value+=digit*pow(10,exponent);
+     exponent++;
+     num /=10;
+   }      
+   return value;
+}
+
 
   PGM::PGM()
   {
@@ -119,12 +134,17 @@ const char* PGM::getType() const {
    return "PGM";
 }
 
-char PGM::getAtIndex(int row, int col)
+char getAtIndex(PGM& obj,int row, int col)
 {
-    return m_bitmap[row][col];
+    return obj.m_bitmap[row][col];
+} 
+
+const char* PGM::getFilename() const
+{
+  return m_filename;
 }
 
-void PGM::printPGM()
+void PGM::print()
 {
    for (int i=0; i<m_rows; i++) {
         for(int j=0; j<m_col;j++)
@@ -135,21 +155,27 @@ void PGM::printPGM()
     }
 }
 
+void PGM::grayscale()
+{
+    cout<<"Unable to perform grayscale on " <<m_filename<<" because file already in greyscale!"<<endl;
+}
+
 void PGM::negative()
 {
    for (int i=0; i<m_rows; i++) {
         for(int j=0; j<m_col;j++)
         {
-          m_bitmap[i][j]= 15- m_bitmap[i][j];
+          m_bitmap[i][j]= m_grayscale- m_bitmap[i][j];
         }
     }
+    cout<<"I've successsfully negated image "<<m_filename<<endl;
 }
 
  void PGM::monochrome()
  {
      if((m_grayscale==1)||(m_grayscale==0))
      {
-         cout<<"Image is already monochrome!"<<endl;
+         cout<<"Image "<<m_filename<<" is already monochrome!"<<endl;
          return ; 
      }
      for (int i=0; i<m_rows; i++) {
@@ -157,14 +183,15 @@ void PGM::negative()
         {
           if(m_bitmap[i][j]>0)
           {
-              m_bitmap[i][j]=1;
+              m_bitmap[i][j]=m_grayscale;
           }
         }
     }
+    cout<<"Succesfully applied monochrome to imate "<<m_filename<<endl;
  }
 
 
- PGM& PGM::rotate(const char* direction)
+ IImage* PGM::rotate(const char* direction)
  {
    PGM* new_PGM = new PGM(m_col,m_rows);
    
@@ -179,14 +206,14 @@ void PGM::negative()
 
         tmp--;
     }
-    cout<<"I have performed left rotation"<<endl;
-    return *new_PGM;
+    cout<<"Succesfully performed left rotation on image "<<m_filename<<endl;
+    return new_PGM;
    }
 
    if(strcmp(direction, "right")==0)
    {
       int tmp_row;
-      cout<<"I will be performinf right"<<endl;
+      cout<<"I will be performinf right rotation"<<endl;
      for (int i=0; i<new_PGM->m_rows; i++) {
         tmp_row=m_rows-1;
         for(int j=0; j<new_PGM->m_col;j++)
@@ -197,78 +224,90 @@ void PGM::negative()
         }
         cout<<endl;
     }
-    cout<<"I have performed right rotation"<<endl;
-   return *new_PGM;
+    cout<<"I have performed right rotation for image "<<m_filename<<endl;
+   return new_PGM;
    }
-
+   else
+   {
+       cout<<"Invalid rotation direction for image "<<m_filename<<endl;
+      // PGM* null_PGM= new PGM();
+       return this;
+   }
  }
 
- PGM& PGM::collage(const char* direction, PGM& other)
+ IImage* collage(PGM& first_PGM,const char* direction, PGM& other)  //TODO: to firstly chechk if one dimensions
  {
     //==horizontal collage
     if(strcmp(direction,"horizontal")==0)
     {
-      int new_size=m_col+other.m_col;
-     PGM* new_PGM = new PGM(m_rows,new_size);
-     //==joining first table
-     for (int i=0; i<m_rows; i++) {
-        for(int j=0; j<m_col;j++)
+
+      int new_size=first_PGM.m_col+other.m_col;
+     PGM* new_PGM = new PGM(first_PGM.m_rows,new_size);
+     //==joining firszt table
+     for (int i=0; i<first_PGM.m_rows; i++) {
+        for(int j=0; j<first_PGM.m_col;j++)
         {
-            new_PGM->m_bitmap[i][j]=m_bitmap[i][j];
+            new_PGM->m_bitmap[i][j]=first_PGM.m_bitmap[i][j];
         }
     }
     
     //==joining second table
     int col_num;
-    for(int i=0; i<m_rows;i++)
+    for(int i=0; i<first_PGM.m_rows;i++)
     { 
       col_num=0;
-       for(int j=m_col;j<new_size;j++)
+       for(int j=first_PGM.m_col;j<new_size;j++)
        {
            new_PGM->m_bitmap[i][j] = other.m_bitmap[i][col_num];
            col_num++;
        }
      }
      cout<<"Ive sucesfully completed horizontal collage"<<endl;
-      return *new_PGM;
+      return new_PGM;
     }
 
     //==vertical collage
     if(strcmp(direction,"vertical")==0)
     {
-     int new_size=m_rows+other.m_rows;
-     PGM* new_PGM = new PGM(new_size,m_col);
+     int new_size=first_PGM.m_rows+other.m_rows;
+     PGM* new_PGM = new PGM(new_size,first_PGM.m_col);
      //==joining first table
-     for (int i=0; i<m_rows; i++) {
-        for(int j=0; j<m_col;j++)
+     for (int i=0; i<first_PGM.m_rows; i++) {
+        for(int j=0; j<first_PGM.m_col;j++)
         {
-            new_PGM->m_bitmap[i][j]=m_bitmap[i][j];
+            new_PGM->m_bitmap[i][j]=first_PGM.m_bitmap[i][j];
         }
     }
     
     //==joining second table
     int row_num=0;
-    for(int i=m_rows; i<new_size;i++)
+    for(int i=first_PGM.m_rows; i<new_size;i++)
     { 
-       for(int j=0;j<m_col;j++)
+       for(int j=0;j<first_PGM.m_col;j++)
        {
            new_PGM->m_bitmap[i][j] = other.m_bitmap[row_num][j];
        }
        row_num++;
      }
      cout<<"Ive sucesfully completed horizontal collage"<<endl;
-      return *new_PGM;
+      return new_PGM;
     }
-
     else
     {
       cout<<"Invalid collage direction"<<endl;
+     // PGM* null_PGM = new PGM();
+      return &first_PGM;
     }
  }
 
 void PGM::setAtIndex(int row, int col, char value)
 {
     m_bitmap[row][col] = value;
+}
+
+void PGM::setFilname (const char* filename)
+{
+    strcpy(m_filename,filename);
 }
 
 //==file methods
@@ -294,8 +333,9 @@ PGM& readPGMFromASCIIFile(std::ifstream& infile)
         infile>>num_col;
         infile>>num_rows;
         infile.get(newline);
-        std::cout<<"Dimensions are rows"<<num_rows<<"Xcol"<<num_col<<endl;
+        std::cout<<"Dimensions are rows"<<num_rows<<"Xcol"<<num_col<<"!"<<endl;
         infile>>grayscale;
+        cout<<"Grayscale is "<<grayscale<<"!!!"<<endl;
         infile.get(newline);
     }
     else
@@ -313,15 +353,16 @@ PGM& readPGMFromASCIIFile(std::ifstream& infile)
 
      std::cout<<"Ill be inputting values"<<endl;
    //==inputting bitmap
-     char value; 
+     int value; 
    for(int i=0;i<num_rows; i++) 
    {
       for(int j=0;j<num_col; j++)
       {
         infile>>value;
+        cout<<"Read value: "<<value<<" ";
         std::cout<<"At row["<<i<<"] col["<<j<<"] = ";
-        new_PGM->m_bitmap[i][j]=value;
-        std::cout<<new_PGM->m_bitmap[i][j]<<endl;
+        new_PGM->m_bitmap[i][j]=fromIntToCharPGM(value);
+        std::cout<<(int)new_PGM->m_bitmap[i][j]<<endl;
       }
       std::cout<<endl;
    }
@@ -335,9 +376,9 @@ PGM& readPGMFromBinaryFile(std::ifstream& infile)
     char newline;
     char space;
      //==reads magic number
-     char magic_number[3];
+    /* char magic_number[3];
      infile>>magic_number;
-     std::cout<<magic_number;
+     std::cout<<magic_number; */
      infile.get(newline);
 
     //== reads comments and dimensions
@@ -371,6 +412,7 @@ PGM& readPGMFromBinaryFile(std::ifstream& infile)
     }
 
     PGM* new_PGM = new PGM(num_rows,num_col);
+    new_PGM->m_grayscale=grayscale;
 
     //==reading bitmap
     std::cout << "And bitmap is " << endl;
@@ -398,26 +440,26 @@ PGM& readPGMFromBinaryFile(std::ifstream& infile)
     return *new_PGM;
 }
 
-void writePGMToASCIIFile(std::ofstream&outfile, PGM& obj)
+void PGM::writeToASCIIFile(std::ofstream& outfile)
 {
     std::cout<<"Im inside write PGMTOASCIIfile"<<endl;
     //==writes magic number 
-    const char magic_number[3]= "P1"; 
+    const char magic_number[3]= "P2"; 
     outfile<<magic_number<<"\n";
 
     //==writes comment
     const char hash_comment='#';
     char* comment = new char[MAX_COMMENT_SIZE];
-    comment= obj.m_filename;
+    comment= m_filename;
     outfile<<hash_comment<<" "<<comment<<endl;
     
     //==writes col and rows size
-    int col = obj.m_col;
-    int rows = obj.m_rows;
+    int col = m_col;
+    int rows = m_rows;
     outfile<<col<<" "<<rows<<endl;
 
     //==writes greyscale
-    int grayscale = obj.m_grayscale;
+    int grayscale = m_grayscale;
     outfile<<grayscale<<endl;
 
     //==writes bitmap
@@ -425,7 +467,7 @@ void writePGMToASCIIFile(std::ofstream&outfile, PGM& obj)
    {
       for(int j=0;j<col; j++)
       {
-        outfile<<(int)obj.m_bitmap[i][j]<<" ";
+        outfile<<(int)m_bitmap[i][j]<<" ";
       }
       outfile<<endl;
    }
@@ -433,33 +475,31 @@ void writePGMToASCIIFile(std::ofstream&outfile, PGM& obj)
 }
 
 // Binary
-void writePGMToBinaryFile(std::ofstream&outfile, PGM& obj)
+void PGM::writeToBinaryFile(std::ofstream& outfile)
 {
      std::cout<<"Im inside write PGMToBinaryfile"<<endl;
-    //==writes magic number 
-    const char magic_number[3]= "P5"; 
-    outfile<<magic_number<<"\n";
-
+     const char magic_number[3]= "P5"; 
+     outfile<<magic_number<<"\n";
     //==writes comment
     const char hash_comment='#';
     char* comment = new char[MAX_COMMENT_SIZE];
-    comment= obj.m_filename;
+    comment= m_filename;
     outfile<<hash_comment<<" "<<comment<<endl;
     
     //==writes col and rows size and grayscale level
-    int col = obj.m_col;
-    int rows = obj.m_rows;
+    int col = m_col;
+    int rows = m_rows;
     outfile<<col<<" "<<rows<<endl;
-    int grayscale = obj.m_grayscale;
+    int grayscale = m_grayscale;
     outfile<<grayscale<<endl;
 
    //==prints bitmap
-   for(int i=0; i<obj.m_rows;i++)
+   for(int i=0; i<m_rows;i++)
    {
-       for(int j=0; j<obj.m_col;j++)
+       for(int j=0; j<m_col;j++)
        {
-           outfile<<obj.m_bitmap[i][j];
+           outfile<<m_bitmap[i][j];
        }
    }
-   
 }
+
