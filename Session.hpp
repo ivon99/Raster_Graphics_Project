@@ -17,6 +17,8 @@ class Session
 
 public:
     Session();
+    IImage* get_loaded_image(int index);
+
     IImage *load(const char *filename);
     void close();
     void save();
@@ -28,22 +30,12 @@ public:
     void monochrome();
     void negative();
     void rotate(const char *direction);
+    void collage(IImage* first_image,const char* direction,IImage* second_image);
     void undo();
     //void addImage();
     void sessionInfo();
-    /*
-    void switchSession(int sessionID);
-    void collage(const char* direction, PBM& first, PBM& other); //TODO:outputs image which will be added to current session
-    void collage(const char* direction, PGM& first, PGM& other);
-    void collage(const char* direction, PPM& first, PPM& other); */
-   /* void savePBMToASCIIFile(std::ofstream &outfile, IImage* obj);
-    void savePBMToBinaryFile(std::ofstream &outfile,IImage* obj);
+    //void switchSession(int sessionID);
 
-    void savePGMToASCIIFile(std::ofstream &outfile,IImage* obj);
-    void savePGMToBinaryFile(std::ofstream &outfile,IImage* obj);
-
-    void savePPMToASCIIFile(std::ofstream &outfile,IImage* obj);
-    void savePPMToBinaryFile(std::ofstream &outfile,IImage* obj); */
 };
 
 #endif

@@ -13,6 +13,12 @@ Session::Session()
     cout << "Session with ID:" << m_sessionID << " started." << endl;
 }
 
+IImage* Session::get_loaded_image(int index)
+{
+    return m_loaded_images[index];
+}
+
+
 IImage *Session::load(const char *filename) //FIXME:it wille be more like add image, load image to be for the system
 {
     std::ifstream infile;
@@ -55,7 +61,7 @@ IImage *Session::load(const char *filename) //FIXME:it wille be more like add im
             IImage *new_PGM = &readPGMFromBinaryFile(infile);
             new_PGM->setFilname(filename);
             m_loaded_images.addElement(new_PGM);
-            cout << "Succesfully read from txt .pgm from " << filename << endl;
+            cout << "Succesfully read from binary .pgm from " << filename << endl;
             infile.close();
             return new_PGM;
         }
@@ -73,7 +79,7 @@ IImage *Session::load(const char *filename) //FIXME:it wille be more like add im
             IImage *new_PPM = &readPPMFromBinaryFile(infile);
             new_PPM->setFilname(filename);
             m_loaded_images.addElement(new_PPM);
-            cout << "Succesfully read from txt .ppm from " << filename << endl;
+            cout << "Succesfully read from binary .ppm from " << filename << endl;
             infile.close();
             return new_PPM;
         }
@@ -124,11 +130,11 @@ void Session::save()
             {
                 // cout<<m_loaded_images[j]->getFilename()<<" ";
                 //cout<<"grayscale()"<<endl;
-                cout<<"Before grayscale image was:"<<endl;
-                m_loaded_images[j]->print();
+                //cout<<"Before grayscale image was:"<<endl;
+                //m_loaded_images[j]->print();
                 m_loaded_images[j]->grayscale();
-                cout<<"After grayscale image is: "<<endl;
-                m_loaded_images[j]->print();
+                //cout<<"After grayscale image is: "<<endl;
+                //m_loaded_images[j]->print();
 
                 const char *filename = m_loaded_images[j]->getFilename();
                 std::ofstream outfile;
@@ -187,7 +193,7 @@ void Session::save()
                 const char *direction = m_pending_commands[i]->getDirection();
                 //cout<<m_loaded_images[j]->getFilename()<<" ";
                 //cout<<"rotate() -"<< direction<<endl;
-                m_loaded_images[j]->rotate(direction);
+               IImage* rotated_image= m_loaded_images[j]->rotate(direction);
                 //const char *filename = m_loaded_images[j]->getFilename();
                 //saveToASCIIFile(filename, m_loaded_images[j]);
                 const char *filename = m_loaded_images[j]->getFilename();
@@ -195,7 +201,7 @@ void Session::save()
                 outfile.open(filename);
                 if (outfile)
                 {
-                    m_loaded_images[j]->writeToASCIIFile(outfile);
+                    rotated_image->writeToASCIIFile(outfile);
                 }
                 else
                 {
@@ -256,6 +262,14 @@ void Session::rotate(const char *direction)
     m_pending_commands.addElement(rotate_command);
 }
 
+void Session::collage(IImage* first_image,const char* direction,IImage* second_image)
+{
+   IImage* collaged= first_image->collage(direction,second_image);
+
+  // int size= m_loaded_images.getSize();
+   m_loaded_images.addElement(collaged);
+}
+
 void Session::undo()
 {
     int size_pending_commands = m_pending_commands.getSize();
@@ -291,15 +305,4 @@ void Session::sessionInfo()
 void Session::switchSession(int sessionID)
 {
 }
-
-void Session::collage(const char *direction, PBM &first, PBM &other)
-{
-}
-void Session::collage(const char *direction, PGM &first, PGM &other)
-{
-}
-void Session::collage(const char *direction, PPM &first, PPM &other)
-{
-}
-
 */

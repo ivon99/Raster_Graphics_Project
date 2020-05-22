@@ -11,6 +11,8 @@ struct Pixel
   Pixel(unsigned char R=0,unsigned char G=0,unsigned char B=0);
 
   operator int() const;
+  bool isWhite() const;
+  Pixel& minus(int value);
   Pixel& operator=(const Pixel& other);
   Pixel& operator-(int value);
   bool operator>(int value);

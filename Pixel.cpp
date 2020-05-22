@@ -9,6 +9,20 @@ Pixel::Pixel(unsigned char R,unsigned char G,unsigned char B)
   m_B=B;
 }
 
+bool Pixel::isWhite() const
+{
+  if((m_R==255)&&
+      (m_G==255)&&
+      (m_B==255))
+      {
+          return true;
+      }
+    else
+    {
+        return false;
+    }  
+}
+
 Pixel& Pixel::operator=(const Pixel& other)
 {
   m_R=other.m_R;
@@ -19,11 +33,25 @@ Pixel& Pixel::operator=(const Pixel& other)
 
 Pixel& Pixel::operator-(int value)
 {
-    m_R-=value;
-    m_G-=value;
-    m_B-=value;
+  unsigned char old_R =m_R;
+  unsigned char old_G= m_G;
+  unsigned char old_B= m_B;
+    m_R=value-old_R;
+    m_G=value-old_G;
+    m_B=value-old_B;
     return *this;
 }
+
+ Pixel& Pixel::minus(int value)
+ {
+  unsigned char old_R =m_R;
+  unsigned char old_G= m_G;
+  unsigned char old_B= m_B;
+    m_R=value-old_R;
+    m_G=value-old_G;
+    m_B=value-old_B;
+    return *this;
+ }
 
 bool Pixel::operator>(int value)
 {

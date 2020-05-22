@@ -5,6 +5,7 @@
 using namespace std;
 const int MAX_COMMENT_SIZE = 1000;
 
+//==helper functions
 void PBM::copyFrom(const PBM &other)
 {
   m_rows = other.m_rows;
@@ -24,7 +25,7 @@ void PBM::copyFrom(const PBM &other)
   }
 }
 
-int* extractBits(char *ch)
+int *extractBits(char *ch)
 {
   int size = sizeof(ch);
   int *bit_value = new int[size];
@@ -60,6 +61,8 @@ char PBM::convertBinaryToChar(int int_sequence[])
   std::cout << "Final value after binary to char conversion is " << value << endl;
   return value;
 }
+
+//==The big 4
 
 PBM::PBM()
 {
@@ -112,21 +115,51 @@ PBM &PBM::operator=(const PBM &other)
   return *this;
 }
 
+//=getters
 const char *PBM::getType() const
 {
   return "PBM";
 }
 
-
-char getAtIndex(PBM& obj, int row, int col)
+const char *PBM::getFilename() const
 {
-  return obj.m_bitmap[row][col];
-} 
+  return m_filename;
+}
 
-const char* PBM::getFilename() const
- {
-   return m_filename;
- }
+int PBM::getNumRows() const
+{
+  return m_rows;
+}
+
+int PBM::getNumCol() const
+{
+  return m_col;
+}
+
+char PBM::getAtIndex(int row, int col) const
+{
+  return m_bitmap[row][col];
+}
+
+Pixel PBM::getAtIndex(int row, int col, int unused) const
+{
+  row++;
+  col++;
+  unused++;
+  return {0, 0, 0};
+}
+
+//==setters
+
+void PBM::setAtIndex(int row, int col, char value)
+{
+  m_bitmap[row][col] = value;
+}
+
+void PBM::setFilname(const char *filename)
+{
+  strcpy(m_filename, filename);
+}
 
 void PBM::print()
 {
@@ -134,20 +167,21 @@ void PBM::print()
   {
     for (int j = 0; j < m_col; j++)
     {
-      cout<<(int)m_bitmap[i][j];
+      cout << (int)m_bitmap[i][j];
     }
     cout << endl;
   }
 }
 
+//==image methods
 void PBM::grayscale()
 {
-  cout << "Can't do grayscale on a .pbm image "<< m_filename<<" !" << endl;
+  cout << "Can't do grayscale on a .pbm image " << m_filename << " !" << endl;
 }
 
 void PBM::monochrome()
 {
-  cout << "Can't do monochrome on a .pbm image" << m_filename<<" !" <<endl;
+  cout << "Can't do monochrome on a .pbm image" << m_filename << " !" << endl;
 }
 
 void PBM::negative()
@@ -168,26 +202,32 @@ void PBM::negative()
       }
     }
   }
-  cout<<"Succesfully negated image "<<m_filename<<endl;
+  cout << "Succesfully negated image " << m_filename << endl;
 }
 
-IImage* PBM::rotate(const char *direction)
+IImage *PBM::rotate(const char *direction)
 {
   PBM *new_PBM = new PBM(m_col, m_rows);
+  new_PBM->m_filename = new char[strlen(m_filename) + 1];
+  strcpy(new_PBM->m_filename, m_filename);
 
   if (strcmp(direction, "left") == 0)
   {
+    cout << "Left rotation new bitmap is: " << endl;
     int tmp = m_col - 1;
     for (int i = 0; i < new_PBM->m_rows; i++)
     {
       for (int j = 0; j < new_PBM->m_col; j++)
       {
         new_PBM->m_bitmap[i][j] = m_bitmap[j][tmp];
+        cout << (int)new_PBM->m_bitmap[i][j] << " ";
       }
-
+      cout << endl;
       tmp--;
     }
-    cout << "I have performed left rotation on image "<<m_filename << endl;
+    cout << "I have performed left rotation on image " << m_filename << endl;
+    //*this = *new_PBM;
+    // return true;
     return new_PBM;
   }
 
@@ -208,41 +248,52 @@ IImage* PBM::rotate(const char *direction)
       }
       cout << endl;
     }
-    cout << "I have performed right rotation on image"<<m_filename << endl;
+    cout << "I have performed right rotation on image" << m_filename << endl;
+    //*this = *new_PBM;
     return new_PBM;
   }
   else
   {
-    cout<<"Error in performing "<<direction<<" rotation for image "<<m_filename<<"!"<<endl;
-   // PBM *null_PBM = new PBM();
+    cout << "Error in performing " << direction << " rotation for image " << m_filename << "!" << endl;
+    // PBM *null_PBM = new PBM();
     return this;
   }
 }
 
-
-IImage* collage(PBM& first_PBM, const char *direction, PBM& other)
+IImage *PBM::collage(const char *direction, IImage *second_image)
 {
+  int first_image_num_rows = m_rows;
+  int first_image_num_col = m_col;
+  int second_image_num_rows = second_image->getNumRows();
+  int second_image_num_col = second_image->getNumCol();
+  if ((first_image_num_rows != second_image_num_rows) || (first_image_num_col != second_image_num_col) || (strcmp("PBM", second_image->getType())))
+  {
+    cout << "Unable to apply collage for images " << m_filename << " and " << second_image->getFilename() << " ."
+         << "Collage images should be of the same type and dimensions!" << endl;
+  }
   if (strcmp(direction, "horizontal") == 0)
   {
-    int new_size = first_PBM.m_col + other.m_col;
-    PBM *new_PBM = new PBM(first_PBM.m_rows, new_size);
+    //int new_size = first_PBM.m_col + other.m_col;
+    int new_size = first_image_num_col + second_image_num_col;
+    PBM *new_PBM = new PBM(first_image_num_rows, new_size);
     //==joining first table
-    for (int i = 0; i < first_PBM.m_rows; i++)
+    for (int i = 0; i < first_image_num_rows; i++)
     {
-      for (int j = 0; j < first_PBM.m_col; j++)
+      for (int j = 0; j < first_image_num_col; j++)
       {
-        new_PBM->m_bitmap[i][j] = first_PBM.m_bitmap[i][j];
+        //new_PBM->m_bitmap[i][j] = first_PBM.m_bitmap[i][j];
+        new_PBM->m_bitmap[i][j] = m_bitmap[i][j];
       }
     }
 
     //==joining second table
-    int col_num;
-    for (int i = 0; i < first_PBM.m_rows; i++)
+    int col_num = 0;
+    for (int i = 0; i < second_image_num_rows; i++)
     {
       col_num = 0;
-      for (int j = first_PBM.m_col; j < new_size; j++)
+      for (int j = first_image_num_col; j < new_size; j++)
       {
-        new_PBM->m_bitmap[i][j] = other.m_bitmap[i][col_num];
+        new_PBM->m_bitmap[i][j] = second_image->getAtIndex(i, col_num);
         col_num++;
       }
     }
@@ -252,24 +303,25 @@ IImage* collage(PBM& first_PBM, const char *direction, PBM& other)
 
   if (strcmp(direction, "vertical") == 0)
   {
-    int new_size = first_PBM.m_rows + other.m_rows;
-    PBM *new_PBM = new PBM(new_size, first_PBM.m_col);
+    // int new_size = first_PBM.m_rows + other.m_rows;
+    int new_size = first_image_num_rows + second_image_num_rows;
+    PBM *new_PBM = new PBM(new_size, first_image_num_col);
     //==joining first table
-    for (int i = 0; i < first_PBM.m_rows; i++)
+    for (int i = 0; i < first_image_num_rows; i++)
     {
-      for (int j = 0; j < first_PBM.m_col; j++)
+      for (int j = 0; j < first_image_num_col; j++)
       {
-        new_PBM->m_bitmap[i][j] = first_PBM.m_bitmap[i][j];
+        new_PBM->m_bitmap[i][j] = m_bitmap[i][j];
       }
     }
 
     //==joining second table
     int row_num = 0;
-    for (int i = first_PBM.m_rows; i < new_size; i++)
+    for (int i = first_image_num_rows; i < new_size; i++)
     {
-      for (int j = 0; j < first_PBM.m_col; j++)
+      for (int j = 0; j < first_image_num_col; j++)
       {
-        new_PBM->m_bitmap[i][j] = other.m_bitmap[row_num][j];
+        new_PBM->m_bitmap[i][j] = second_image->getAtIndex(row_num, j);
       }
       row_num++;
     }
@@ -281,20 +333,9 @@ IImage* collage(PBM& first_PBM, const char *direction, PBM& other)
   {
     //PBM *null_PBM = new PBM();
     cout << "Invalid collage direction" << endl;
-    return &first_PBM;
+    return this;
   }
 }
-
-void PBM::setAtIndex(int row, int col, char value)
-{
-  m_bitmap[row][col] = value;
-}
-
-
-void PBM::setFilname (const char* filename)
-{
-   strcpy(m_filename, filename);
-} 
 
 //==file methods
 PBM &readPBMFromASCIIFile(std::ifstream &infile)
@@ -337,12 +378,12 @@ PBM &readPBMFromASCIIFile(std::ifstream &infile)
   {
     for (int j = 0; j < num_col; j++)
     {
-       infile >> value;
-       cout<<value<<" , ";// void writePBMToASCIIFile(std::ofstream &outfile, PBM &obj);
-// void writePBMToBinaryFile(std::ofstream &outfile, PBM &obj);
+      infile >> value;
+      cout << value << " , "; // void writePBMToASCIIFile(std::ofstream &outfile, PBM &obj);
+                              // void writePBMToBinaryFile(std::ofstream &outfile, PBM &obj);
       std::cout << "At row[" << i << "] col[" << j << "] = ";
-      new_PBM->m_bitmap[i][j] = value ;
-      std::cout << (int) new_PBM->m_bitmap[i][j] << endl;
+      new_PBM->m_bitmap[i][j] = value;
+      std::cout << (int)new_PBM->m_bitmap[i][j] << endl;
     }
     std::cout << endl;
   }
@@ -387,9 +428,9 @@ PBM &readPBMFromBinaryFile(std::ifstream &infile)
     infile.get(newline);
     std::cout << "Dimensions are" << num_col << "X" << num_rows << endl;
   }
-  
+
   PBM *new_PBM = new PBM(num_rows, num_col);
-  
+
   //==reading bitmap
   std::cout << "And bitmap is " << endl;
   int ctr = 0;
@@ -402,7 +443,7 @@ PBM &readPBMFromBinaryFile(std::ifstream &infile)
     else
     {
       std::cout << value_ptr << endl;
-      
+
       int *extracted_bits = extractBits(value_ptr);
       int row = 0;
       for (int j = num_col - 1; j >= 0; j--)
@@ -426,13 +467,12 @@ PBM &readPBMFromBinaryFile(std::ifstream &infile)
   }
   std::cout << "Ctr is" << ctr;
 
-  std::cout << "Ended inputting file" << endl; 
+  std::cout << "Ended inputting file" << endl;
   return *new_PBM;
 }
 
-
 //============
-void PBM::writeToASCIIFile(std::ofstream& outfile)
+void PBM::writeToASCIIFile(std::ofstream &outfile)
 {
   std::cout << "Im inside write PBMTOASCIIfile" << endl;
   //==writes magic number
@@ -456,10 +496,10 @@ void PBM::writeToASCIIFile(std::ofstream& outfile)
     for (int j = 0; j < col; j++)
     {
       outfile << (int)m_bitmap[i][j] << " ";
-      cout<<(int)m_bitmap[i][j] << " ";
+      cout << (int)m_bitmap[i][j] << " ";
     }
     outfile << endl;
-    cout<<endl;
+    cout << endl;
   }
   std::cout << "Ended writing file" << endl;
 }
@@ -531,5 +571,5 @@ void PBM::writeToBinaryFile(std::ofstream &outfile) //FIXME: how do you read the
     else
       cout << "noo" << endl;
   }
-  cout<<"Succesfully wrote file"<<endl;
+  cout << "Succesfully wrote file" << endl;
 }

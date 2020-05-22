@@ -5,17 +5,17 @@
 #include "IImage.hpp"
 using namespace std;
 
-class PGM: public IImage
+class PGM : public IImage
 {
     int m_rows;
     int m_col;
     int m_grayscale;
-    char** m_bitmap;
-    char* m_filename;
+    unsigned char **m_bitmap;
+    char *m_filename;
 
     void copyFrom(const PGM &other);
 
-   public:
+public:
     //==THE BIG 4==
     PGM();
     PGM(int rows, int col);
@@ -33,11 +33,15 @@ class PGM: public IImage
     }
 
     //==getters
-    virtual const char* getType() const override;
-    virtual const char* getFilename() const override;
-    friend char getAtIndex(PGM& obj,int row, int col); 
+    virtual const char *getType() const override;
+    virtual const char *getFilename() const override;
+    virtual int getNumRows() const override;
+    virtual int getNumCol() const override;
+    virtual char getAtIndex(int row, int col) const override;
+    virtual Pixel getAtIndex(int row, int col, int unused) const override;
+    //==setters
     virtual void setAtIndex(int row, int col, char value) override;
-    virtual void setFilname (const char* filename) override;
+    virtual void setFilname(const char *filename) override;
     virtual void print() override;
 
     //==images methods
@@ -45,18 +49,17 @@ class PGM: public IImage
     virtual void monochrome() override;
     virtual void negative() override;
 
-    virtual IImage* rotate(const char *direction) override;
-    friend IImage* collage(PGM& first_PGM,const char *direction, PGM& other) ;
-    
+    virtual IImage *rotate(const char *direction) override;
+    virtual IImage *collage(const char *direction, IImage *second_image) override;
+
     //==files methods
-    friend PGM& readPGMFromASCIIFile(std::ifstream &infile);
-    friend PGM& readPGMFromBinaryFile(std::ifstream &infile);
-    virtual void writeToASCIIFile(std::ofstream& outfile) override;
-    virtual void writeToBinaryFile(std::ofstream& outfile) override;
+    friend PGM &readPGMFromASCIIFile(std::ifstream &infile);
+    friend PGM &readPGMFromBinaryFile(std::ifstream &infile);
+    virtual void writeToASCIIFile(std::ofstream &outfile) override;
+    virtual void writeToBinaryFile(std::ofstream &outfile) override;
 };
 
-char getAtIndex(PGM& obj,int row, int col); 
-IImage* collage(PGM& first_PGM, const char *direction, PGM& other) ;
+char getAtIndex(PGM &obj, int row, int col);
 
 PGM &readPGMFromASCIIFile(std::ifstream &infile);
 PGM &readPGMFromBinaryFile(std::ifstream &infile);

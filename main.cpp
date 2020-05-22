@@ -8,19 +8,29 @@ int main()
     cout<<"Welcome to hell"<<endl;
     Session s1;
     //s1.load("zaj.pbm");
+    //s1.load("zaj1.pbm");
     //s1.load("zabinary.pbm");
-    //s1.load("zcfeep.pgm");
-    //s1.load("zcfeep-bin.pgm");
-    //s1.load("zlrainbow.ppm");
-    s1.load("bell_206.ppm"); //FIXME: not able to read binary
-    s1.grayscale();
+    //s1.load("zabinary1.pbm");
+  //  s1.load("zcfeep.pgm");
+   // s1.load("zcfeep1.pgm");
+   // s1.load("zP6.pgm"); //
+    //s1.load("zP61.pgm");
+    s1.load("zlrainbow.ppm");  //
+    s1.load("zlrainbow1.ppm");
+    // s1.load("zlrainbow-bin.ppm"); 
+    //s1.grayscale();
     //s1.monochrome();
     //s1.negative();
     //const char* direction = "left";
-    //const char* l_direction = "right";
-   // s1.rotate(direction);
-    //s1.rotate(l_direction);
+    //const char* r_direction = "right";
+    //s1.rotate(direction);
+    //s1.rotate(r_direction);
    // s1.undo(); 
+  // IImage* first_image = s1.get_loaded_image(0);
+   //IImage* second_image= s1.get_loaded_image(1);
+   //const char* h_direction = "vertical";
+    //s1.collage(first_image,h_direction,second_image);
+    s1.grayscale();
     s1.sessionInfo();
     s1.save();
    //s1.save_as();
