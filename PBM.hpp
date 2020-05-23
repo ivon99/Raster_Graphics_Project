@@ -59,8 +59,6 @@ public:
   virtual void writeToBinaryFile(std::ofstream &outfile) override;
 };
 
-//char getAtIndex(PBM& obj,int row, int col);
-
 PBM &readPBMFromASCIIFile(std::ifstream &infile);
 PBM &readPBMFromBinaryFile(std::ifstream &infile);
 

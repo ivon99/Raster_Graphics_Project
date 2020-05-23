@@ -13,11 +13,24 @@ Session::Session()
     cout << "Session with ID:" << m_sessionID << " started." << endl;
 }
 
-IImage* Session::get_loaded_image(int index)
+IImage *Session::get_loaded_image(int index)
 {
     return m_loaded_images[index];
 }
 
+IImage* Session::get_loaded_image_by_filename(const char* filename)
+{
+    int size = m_loaded_images.getSize();
+    for(int i=0; i<size;i++)
+    {
+        const char* filename_at_index= m_loaded_images[i]->getFilename();
+        if(strcmp(filename,filename_at_index)==0)
+        {
+            return m_loaded_images[i];
+        }
+    }
+    return m_loaded_images[0];
+}
 
 IImage *Session::load(const char *filename) //FIXME:it wille be more like add image, load image to be for the system
 {
@@ -48,7 +61,7 @@ IImage *Session::load(const char *filename) //FIXME:it wille be more like add im
         }
         if (strcmp(magic_number, "P2") == 0)
         {
-            cout<<"P2 motherfuckers!"<<endl;
+            cout << "P2 motherfuckers!" << endl;
             IImage *new_PGM = &readPGMFromASCIIFile(infile);
             new_PGM->setFilname(filename);
             m_loaded_images.addElement(new_PGM);
@@ -74,7 +87,7 @@ IImage *Session::load(const char *filename) //FIXME:it wille be more like add im
             infile.close();
             return new_PPM;
         }
-        if(strcmp(magic_number,"P6")==0)
+        if (strcmp(magic_number, "P6") == 0)
         {
             IImage *new_PPM = &readPPMFromBinaryFile(infile);
             new_PPM->setFilname(filename);
@@ -145,7 +158,7 @@ void Session::save()
                 }
                 else
                 {
-                    cout<<"Unable to save "<<filename<<endl;
+                    cout << "Unable to save " << filename << endl;
                 }
                 outfile.close();
                 continue;
@@ -164,7 +177,7 @@ void Session::save()
                 }
                 else
                 {
-                    cout<<"Unable to save "<<filename<<endl;
+                    cout << "Unable to save " << filename << endl;
                 }
                 outfile.close();
                 continue;
@@ -183,7 +196,7 @@ void Session::save()
                 }
                 else
                 {
-                    cout<<"Unable to save "<<filename<<endl;
+                    cout << "Unable to save " << filename << endl;
                 }
                 outfile.close();
                 continue;
@@ -193,7 +206,7 @@ void Session::save()
                 const char *direction = m_pending_commands[i]->getDirection();
                 //cout<<m_loaded_images[j]->getFilename()<<" ";
                 //cout<<"rotate() -"<< direction<<endl;
-               IImage* rotated_image= m_loaded_images[j]->rotate(direction);
+                IImage *rotated_image = m_loaded_images[j]->rotate(direction);
                 //const char *filename = m_loaded_images[j]->getFilename();
                 //saveToASCIIFile(filename, m_loaded_images[j]);
                 const char *filename = m_loaded_images[j]->getFilename();
@@ -205,7 +218,23 @@ void Session::save()
                 }
                 else
                 {
-                    cout<<"Unable to save "<<filename<<endl;
+                    cout << "Unable to save " << filename << endl;
+                }
+                outfile.close();
+                continue;
+            }
+            else
+            {
+                const char *filename = m_loaded_images[j]->getFilename();
+                std::ofstream outfile;
+                outfile.open(filename);
+                if (outfile)
+                {
+                    m_loaded_images[j]->writeToASCIIFile(outfile);
+                }
+                else
+                {
+                    cout << "Unable to save " << filename << endl;
                 }
                 outfile.close();
                 continue;
@@ -213,11 +242,24 @@ void Session::save()
         }
     }
 }
-void Session::save_as()
+void Session::save_as(const char *filename)
 {
-    int size= m_loaded_images.getSize();
-    for(int i=0;i<size;i++){
-      const char *filename = m_loaded_images[i]->getFilename();
+    std::ofstream outfile;
+    outfile.open(filename);
+    if (outfile)
+    {
+        m_loaded_images[0]->writeToASCIIFile(outfile);
+    }
+    else
+    {
+        cout << "Unable to save " << filename << endl;
+    }
+    outfile.close();
+}
+
+//int size= m_loaded_images.getSize();
+/*for(int i=0;i<size;i++){
+      //const char *filename = m_loaded_images[i]->getFilename();
                 std::ofstream outfile;
                 outfile.open(filename);
                 if (outfile)
@@ -229,14 +271,7 @@ void Session::save_as()
                     cout<<"Unable to save "<<filename<<endl;
                 }
                 outfile.close();
-    }
-}
-void Session::help()
-{
-}
-void Session::exit()
-{
-}
+    }*/
 
 void Session::grayscale()
 {
@@ -262,12 +297,14 @@ void Session::rotate(const char *direction)
     m_pending_commands.addElement(rotate_command);
 }
 
-void Session::collage(IImage* first_image,const char* direction,IImage* second_image)
+void Session::collage(const char *direction,const char* first_image_filename, const char* second_image_filename, const char* out_filename)
 {
-   IImage* collaged= first_image->collage(direction,second_image);
-
-  // int size= m_loaded_images.getSize();
-   m_loaded_images.addElement(collaged);
+    IImage* first_image = get_loaded_image_by_filename(first_image_filename);
+    IImage* second_image = get_loaded_image_by_filename(second_image_filename);
+    IImage *collaged = first_image->collage(direction, second_image);
+    collaged->setFilname(out_filename);
+    // int size= m_loaded_images.getSize();
+    m_loaded_images.addElement(collaged);
 }
 
 void Session::undo()

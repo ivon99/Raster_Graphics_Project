@@ -98,9 +98,12 @@ template<typename T>
   template<typename T>
   void List<T>::addElement(const T& newElement)
   {
+    std::cout<<"**************"<<std::endl;
     std::cout<<"Im inside add element for list"<<std::endl;
+    std::cout<<"I will be comparing:"<<m_size<<" "<<m_capacity<<std::endl; 
      if(m_size==m_capacity)
      {
+       std::cout<<"Capacity = size!"<<std::endl;
        resize(m_capacity*2);
        std::cout<<"Im gonna resize and now list has capacity of"<<m_capacity<<std::endl;
      }
