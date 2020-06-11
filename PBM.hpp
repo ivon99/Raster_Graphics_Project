@@ -4,19 +4,31 @@
 #include "Pixel.hpp"
 #include <fstream>
 
+/**
+ * Class for portable bitmap format (PBM) encoded images
+ * PBM images encode black and white images 
+ * representing each pixel with a single bit.
+ * Pixel values are 1(black) and 0(white)
+ */
+
 class PBM : public IImage
 {
-  int m_rows;
-  int m_col;
-  char **m_bitmap;
-  char *m_filename;
+  //int m_rows;
+  // int m_col;
+  char **m_bitmap; ///< pixel map of image represented as a multi-dimensional array of bytes
+  char *m_filename;  ///< stores filename from which the image is imported
 
   void copyFrom(const PBM &other);
+  /// extracts bits values from a byte
+  /// &returns: a pointer to an array of values
   int *extractBits(char *ch);
+  /// converts bit sequence of values to a byte
+  /// &returns: a byte
   char convertBinaryToChar(int int_sequence[]);
 
 public:
   //==THE BIG 4==
+
   PBM();
   PBM(int rows, int col);
   PBM(const PBM &other);
@@ -33,27 +45,39 @@ public:
   }
 
   //==getters
+
   virtual const char *getType() const override;
   virtual const char *getFilename() const override;
   virtual int getNumRows() const override;
   virtual int getNumCol() const override;
   virtual char getAtIndex(int row, int col) const override;
+  /// undefined method for PBM encoded files
   virtual Pixel getAtIndex(int row, int col, int unused) const override;
+  
   //==setters
+
   virtual void setAtIndex(int row, int col, char value) override;
   virtual void setFilname(const char *filename) override;
   virtual void print() override;
 
   //==images methods
-  virtual void grayscale() override;
-  virtual void monochrome() override;
-  virtual void negative() override;
 
+  /// method not defined for PBM images, as already B&W
+  virtual void grayscale() override;
+ /// method not defined for PBM images, as already B&W
+  virtual void monochrome() override;
+  /// inverses B&W values
+  virtual void negative() override;
   virtual IImage *rotate(const char *direction) override;
   virtual IImage *collage(const char *direction, IImage *second_image) override;
 
   //==files methods
+
+  /// reads PBM from ASCII encoded file
+  /// & returns: newly read PBM image
   friend PBM &readPBMFromASCIIFile(std::ifstream &infile);
+  /// reads PBM from binary encoded file
+  /// & returns: newly read PBM image
   friend PBM &readPBMFromBinaryFile(std::ifstream &infile);
   virtual void writeToASCIIFile(std::ofstream &outfile) override;
   virtual void writeToBinaryFile(std::ofstream &outfile) override;

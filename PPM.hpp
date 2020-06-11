@@ -5,13 +5,20 @@
 #include "IImage.hpp"
 using namespace std;
 
+/**
+ * Class for portable pixmap format (PPM) encoded images
+ * PPM images encode colour images
+ * representing each pixel as 3 bytes (1 byte per Red, Green, Blue)
+ * Pixel values range from 0 up to colourscale value for every RGB byte
+ */
+
 class PPM : public IImage
 {
-  int m_rows;
-  int m_col;
-  int m_colourscale;
-  Pixel **m_bitmap;
-  char *m_filename;
+  //int m_rows;
+  //int m_col;
+  int m_colourscale; ///< maximum value for every byte in RGB
+  Pixel **m_bitmap;  //< pixel map is represented as 2D array of RGB pixels
+  char *m_filename;  //< holds filename from which PPM image is read
 
   void copyFrom(const PPM &other);
 
@@ -38,6 +45,7 @@ public:
   virtual int getNumRows() const override;
   virtual int getNumCol() const override;
   virtual char getAtIndex(int row, int col) const override;
+  /// returns RGB pixel at given coordinates
   virtual Pixel getAtIndex(int row, int col, int unused) const override;
   //==setters
   virtual void setAtIndex(int row, int col, char value) override;
@@ -52,7 +60,11 @@ public:
   virtual IImage *collage(const char *direction, IImage *second_image) override;
 
   //==files methods
+  /// reads PPM from ASCII encoded file
+  /// & returns: newly read PPM image
   friend PPM &readPPMFromASCIIFile(std::ifstream &infile);
+  /// reads PPM from binary encoded file
+  /// & returns: newly read PPM image
   friend PPM &readPPMFromBinaryFile(std::ifstream &infile);
   virtual void writeToASCIIFile(std::ofstream &outfile) override;
   virtual void writeToBinaryFile(std::ofstream &outfile) override;

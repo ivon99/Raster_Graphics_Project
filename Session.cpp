@@ -29,10 +29,28 @@ IImage* Session::get_loaded_image_by_filename(const char* filename)
             return m_loaded_images[i];
         }
     }
-    return m_loaded_images[0];
+    cout<<"Unable to find an image loaded from given filename "<<endl;
+    IImage* null_image = new PBM();
+    return null_image;
 }
 
-IImage *Session::load(const char *filename) //FIXME:it wille be more like add image, load image to be for the system
+ int Session::get_index_of_loaded_image_by_filename(const char* filename)
+ {
+    int size = m_loaded_images.getSize();
+    for(int i=0; i<size;i++)
+    {
+        const char* filename_at_index= m_loaded_images[i]->getFilename();
+        if(strcmp(filename,filename_at_index)==0)
+        {
+            return i;
+        }
+    }
+    return -1;
+ }
+
+// loads a new image by firstly reading magic number of image
+// then assigning an IImage pointer to a new object of respective type
+IImage *Session::load(const char *filename)
 {
     std::ifstream infile;
     infile.open(filename);
@@ -40,13 +58,11 @@ IImage *Session::load(const char *filename) //FIXME:it wille be more like add im
     {
         char magic_number[3];
         infile >> magic_number;
-        //cout<<magic_number;
         if (strcmp(magic_number, "P1") == 0)
         {
             IImage *new_PBM = &readPBMFromASCIIFile(infile);
             new_PBM->setFilname(filename);
-            m_loaded_images.addElement(new_PBM); //FIXME: test
-            cout << "Succesfully read from txt .pbm from " << filename << endl;
+            m_loaded_images.addElement(new_PBM); 
             infile.close();
             return new_PBM;
         }
@@ -54,18 +70,15 @@ IImage *Session::load(const char *filename) //FIXME:it wille be more like add im
         {
             IImage *new_PBM = &readPBMFromBinaryFile(infile);
             new_PBM->setFilname(filename);
-            m_loaded_images.addElement(new_PBM); //FIXME: test
-            cout << "Succesfully read from binary .pbm from " << filename << endl;
+            m_loaded_images.addElement(new_PBM); 
             infile.close();
             return new_PBM;
         }
         if (strcmp(magic_number, "P2") == 0)
         {
-            cout << "P2 motherfuckers!" << endl;
             IImage *new_PGM = &readPGMFromASCIIFile(infile);
             new_PGM->setFilname(filename);
             m_loaded_images.addElement(new_PGM);
-            cout << "Succesfully read from txt .pgm from " << filename << endl;
             infile.close();
             return new_PGM;
         }
@@ -74,7 +87,6 @@ IImage *Session::load(const char *filename) //FIXME:it wille be more like add im
             IImage *new_PGM = &readPGMFromBinaryFile(infile);
             new_PGM->setFilname(filename);
             m_loaded_images.addElement(new_PGM);
-            cout << "Succesfully read from binary .pgm from " << filename << endl;
             infile.close();
             return new_PGM;
         }
@@ -83,7 +95,6 @@ IImage *Session::load(const char *filename) //FIXME:it wille be more like add im
             IImage *new_PPM = &readPPMFromASCIIFile(infile);
             new_PPM->setFilname(filename);
             m_loaded_images.addElement(new_PPM);
-            cout << "Succesfully read from txt .ppm from " << filename << endl;
             infile.close();
             return new_PPM;
         }
@@ -92,7 +103,6 @@ IImage *Session::load(const char *filename) //FIXME:it wille be more like add im
             IImage *new_PPM = &readPPMFromBinaryFile(infile);
             new_PPM->setFilname(filename);
             m_loaded_images.addElement(new_PPM);
-            cout << "Succesfully read from binary .ppm from " << filename << endl;
             infile.close();
             return new_PPM;
         }
@@ -121,10 +131,11 @@ IImage *Session::load(const char *filename) //FIXME:it wille be more like add im
     return null_PBM;
 }
 
-void Session::close() //FIXME:
+void Session::close(const char* filename) //FIXME:
 {
-    cout << "Succesfully closed current session" << endl;
-    delete this;
+    int index = get_index_of_loaded_image_by_filename(filename);
+    m_loaded_images.deleteElement(index);
+    cout << "Succesfully closed "<<filename << endl;
 }
 
 /*applies all the commands to the loaded images in the session*/
@@ -132,22 +143,14 @@ void Session::save()
 {
     int num_loaded = m_loaded_images.getSize();
     int num_pending_commands = m_pending_commands.getSize();
-    cout << "Will be performing loop on " << num_pending_commands << " commands and " << num_loaded << " images." << endl;
     for (int i = 0; i < num_pending_commands; i++)
     {
         const char *pending_command = m_pending_commands[i]->getCommand();
-        cout << "For this loop command is " << pending_command << endl;
         for (int j = 0; j < num_loaded; j++)
         {
             if (strcmp(pending_command, "grayscale") == 0)
             {
-                // cout<<m_loaded_images[j]->getFilename()<<" ";
-                //cout<<"grayscale()"<<endl;
-                //cout<<"Before grayscale image was:"<<endl;
-                //m_loaded_images[j]->print();
                 m_loaded_images[j]->grayscale();
-                //cout<<"After grayscale image is: "<<endl;
-                //m_loaded_images[j]->print();
 
                 const char *filename = m_loaded_images[j]->getFilename();
                 std::ofstream outfile;
@@ -165,8 +168,6 @@ void Session::save()
             }
             if (strcmp(pending_command, "monochrome") == 0)
             {
-                //cout<<m_loaded_images[j]->getFilename()<<" ";
-                //cout<<"monochrome"<<endl;
                 m_loaded_images[j]->monochrome();
                 const char *filename = m_loaded_images[j]->getFilename();
                 std::ofstream outfile;
@@ -184,8 +185,6 @@ void Session::save()
             }
             if (strcmp(pending_command, "negative") == 0)
             {
-                //cout<<m_loaded_images[j]->getFilename()<<" ";
-                //cout<<"negative()"<<endl;
                 m_loaded_images[j]->negative();
                 const char *filename = m_loaded_images[j]->getFilename();
                 std::ofstream outfile;
@@ -204,11 +203,7 @@ void Session::save()
             if (strcmp(pending_command, "rotate") == 0)
             {
                 const char *direction = m_pending_commands[i]->getDirection();
-                //cout<<m_loaded_images[j]->getFilename()<<" ";
-                //cout<<"rotate() -"<< direction<<endl;
                 IImage *rotated_image = m_loaded_images[j]->rotate(direction);
-                //const char *filename = m_loaded_images[j]->getFilename();
-                //saveToASCIIFile(filename, m_loaded_images[j]);
                 const char *filename = m_loaded_images[j]->getFilename();
                 std::ofstream outfile;
                 outfile.open(filename);
@@ -242,36 +237,27 @@ void Session::save()
         }
     }
 }
-void Session::save_as(const char *filename)
+
+void Session::save_as(const char* image_filename, const char * save_to_filename)
 {
     std::ofstream outfile;
-    outfile.open(filename);
+    outfile.open(save_to_filename);
     if (outfile)
     {
-        m_loaded_images[0]->writeToASCIIFile(outfile);
+       // m_loaded_images[0]->writeToASCIIFile(outfile);
+      // get_loaded_image_by_filename(image_filename)->writeToASCIIFile(outfile);
+      int index = get_index_of_loaded_image_by_filename(image_filename);
+      if(index>=0)
+      {
+          m_loaded_images[index]->writeToASCIIFile(outfile);
+      }
     }
     else
     {
-        cout << "Unable to save " << filename << endl;
+        cout << "Unable to save " << image_filename << endl;
     }
     outfile.close();
 }
-
-//int size= m_loaded_images.getSize();
-/*for(int i=0;i<size;i++){
-      //const char *filename = m_loaded_images[i]->getFilename();
-                std::ofstream outfile;
-                outfile.open(filename);
-                if (outfile)
-                {
-                    m_loaded_images[i]->writeToASCIIFile(outfile);
-                }
-                else
-                {
-                    cout<<"Unable to save "<<filename<<endl;
-                }
-                outfile.close();
-    }*/
 
 void Session::grayscale()
 {
@@ -303,7 +289,6 @@ void Session::collage(const char *direction,const char* first_image_filename, co
     IImage* second_image = get_loaded_image_by_filename(second_image_filename);
     IImage *collaged = first_image->collage(direction, second_image);
     collaged->setFilname(out_filename);
-    // int size= m_loaded_images.getSize();
     m_loaded_images.addElement(collaged);
 }
 
@@ -312,11 +297,7 @@ void Session::undo()
     int size_pending_commands = m_pending_commands.getSize();
     m_pending_commands.deleteElement(size_pending_commands - 1);
 }
-/*
-void Session::addImage()
-{
 
-} */
 
 void Session::sessionInfo()
 {
@@ -337,9 +318,3 @@ void Session::sessionInfo()
     }
     cout << endl;
 }
-
-/*
-void Session::switchSession(int sessionID)
-{
-}
-*/

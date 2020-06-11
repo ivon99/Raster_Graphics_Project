@@ -5,9 +5,11 @@
 #include <fstream>
 using namespace std;
 const int MAX_COMMENT_SIZE = 1000;
-const float R_LUMINANCE = 0.2126;
-const float G_LUMINANCE = 0.7152;
-const float B_LUMINANCE = 0.0722;
+/// constants representing intensity(amount of perceived light)
+/// for every of the RGB colours 
+const float R_LUMINANCE = 0.2126; ///< perceived luminance for red colour
+const float G_LUMINANCE = 0.7152; ///< perceived luminance for green colour
+const float B_LUMINANCE = 0.0722; ///<perceived luminance for blue colour
 
 //==helper functions
 void PPM::copyFrom(const PPM &other)
@@ -30,43 +32,7 @@ void PPM::copyFrom(const PPM &other)
     }
 }
 
-int *extractBitsPPM(char *ch)
-{
-    int size = sizeof(ch);
-    int *bit_value = new int[size];
-    for (int i = 0; i < size; i++)
-    {
-        bit_value[i] = 0;
-    }
-    int value = int(*ch);
-    int tmp = value;
-    for (int i = 0; value > 0; i++)
-    {
-        bit_value[i] = value % 2;
-        std::cout << bit_value[i];
-        value = value / 2;
-    }
-    std::cout << "Binary of the given number" << tmp << "= ";
-    for (int i = size - 1; i >= 0; i--)
-    {
-        std::cout << bit_value[i];
-    }
-    return bit_value;
-}
-
-char convertBinaryToCharPPM(int int_sequence[])
-{
-    char value = 0;
-    int exponent = 0;
-    for (int i = 7; i >= 0; i--)
-    {
-        value += int_sequence[i] * pow(2, exponent);
-        exponent++;
-    }
-    std::cout << "Final value after binary to char conversion is " << value << endl;
-    return value;
-}
-
+/// writes number value to a byte
 unsigned char fromIntToChar(int num)
 {
     int digit;
@@ -109,8 +75,8 @@ PPM::PPM(int rows, int col)
         {
             m_bitmap[i][j] = {0, 0, 0};
         }
-    }
-    std::cout << "PPM constructor called, created map with dimensions rows:" << m_rows << "xcol:" << m_col << endl;
+    } 
+   // std::cout << "PPM constructor called, created map with dimensions rows:" << m_rows << "x col:" << m_col << endl;
 }
 
 PPM::PPM(const PPM &other)
@@ -157,7 +123,7 @@ int PPM::getNumCol() const
 return m_col;
 }
 
-Pixel PPM::getAtIndex(int row, int col, int unused) const //FIXME: 
+Pixel PPM::getAtIndex(int row, int col, int unused) const  
 {
     unused--;
     return m_bitmap[row][col];
@@ -170,9 +136,9 @@ char PPM::getAtIndex(int row, int col) const
 }
 
 //==setters
+// not defined for PPM as pixels encoded as RGB
 void PPM::setAtIndex(int row, int col, char value)
 {
-    cout<<"!!Unable !!"<<endl;
     row--;col++; value--;
 }
 
@@ -204,6 +170,26 @@ void PPM::grayscale() //TODO:check if it is all grey
     strcpy(tmp->m_filename, this->m_filename);
     tmp->m_colourscale = this->m_colourscale;
 
+    int greyscale_pixels = 0;
+    int all_pixels = 0;
+    for(int i=0; i<m_rows;i++) //checks if picture is already in greyscale
+    {
+        for(int j=0; j<m_col;j++)
+        {   
+            all_pixels++;
+            if(m_bitmap[i][j].isGrey())
+            {  
+               greyscale_pixels++;
+            }
+            
+        }
+    }
+    if(greyscale_pixels==(all_pixels))
+    {
+        cout<<"Image "<<m_filename<< "is already in greyscale!"<<endl;
+        return ;
+    }
+
     for (int i = 0; i < m_rows; i++)
     {
         for (int j = 0; j < m_col; j++)
@@ -225,7 +211,8 @@ void PPM::negative()
     {
         for (int j = 0; j < m_col; j++)
         {
-            m_bitmap[i][j] = m_bitmap[i][j].minus(m_colourscale);
+            //m_bitmap[i][j] = m_bitmap[i][j].minus(m_colourscale);
+            m_bitmap[i][j] = m_bitmap[i][j] - m_colourscale;
         }
     }
     cout << "Succesfully negated image " << m_filename << endl;
@@ -242,11 +229,9 @@ void PPM::monochrome()
     {
         for (int j = 0; j < m_col; j++)
         {
-            //if (m_bitmap[i][j] > 0)
-            if(m_bitmap[i][j].isWhite()==false)
+            if(m_bitmap[i][j].isWhite()==false) //if not a white pixel
             {
-                //unsigned char m_scale = m_colourscale;
-                m_bitmap[i][j] = {0, 0, 0};
+                m_bitmap[i][j] = {0, 0, 0};     //turn to black
             }
         }
     }
@@ -272,38 +257,28 @@ IImage* PPM::rotate(const char *direction)
 
             tmp--;
         }
-        cout << "I have performed left rotation on image " << m_filename << endl;
-        //*this = *new_PPM;
-        //return true;
+        cout << "Successfully performed left rotation on image " << m_filename << endl;
        return new_PPM;
     }
 
     if (strcmp(direction, "right") == 0)
     {
         int tmp_row;
-        cout << "I will be performinf right" << endl;
         for (int i = 0; i < new_PPM->m_rows; i++)
         {
             tmp_row = m_rows - 1;
             for (int j = 0; j < new_PPM->m_col; j++)
             {
                 new_PPM->m_bitmap[i][j] = m_bitmap[tmp_row][i];
-                cout << "[" << i << "][" << j << "]"
-                     << "="
-                     << "[" << tmp_row << "][" << i << "] ";
                 tmp_row--;
             }
-            cout << endl;
         }
-        cout << "I have performed right rotation on image" << m_filename << endl;
-        //*this = *new_PPM;
-       // return true;
+        cout << "Successfully performed right rotation on image" << m_filename << endl;
        return new_PPM;
     }
     else
     {
         cout << "Invalid rotational drection: options are \"right\" and \"left\" for image " << m_filename << endl;
-         //return false;
         return this;
     }
 }
@@ -314,7 +289,9 @@ IImage* PPM::collage(const char* direction,IImage* second_image)
     int first_image_num_col = m_col;
     int second_image_num_rows = second_image->getNumRows();
     int second_image_num_col = second_image->getNumCol();
-    if ((first_image_num_rows != second_image_num_rows) || (first_image_num_col != second_image_num_col) || (strcmp("PBM", second_image->getType())))
+    if ((first_image_num_rows != second_image_num_rows) //checks dimensions of images are the same
+       || (first_image_num_col != second_image_num_col) 
+       || (strcmp("PBM", second_image->getType())!=0))  //checks if types are the same
      {
         cout << "Unable to apply collage for images " << m_filename << " and " << second_image->getFilename() << " ."
          << "Collage images should be of the same type and dimensions!" << endl;
@@ -345,7 +322,7 @@ IImage* PPM::collage(const char* direction,IImage* second_image)
                 col_num++;
             }
         }
-        cout << "Ive sucesfully completed horizontal collage" << endl;
+        cout << "Successfully completed horizontal collage" << endl;
         return new_PPM;
     }
 
@@ -374,7 +351,7 @@ IImage* PPM::collage(const char* direction,IImage* second_image)
             }
             row_num++;
         }
-        cout << "Ive sucesfully completed horizontal collage" << endl;
+        cout << "Successfully completed horizontal collage" << endl;
         return new_PPM;
     }
 
@@ -385,11 +362,10 @@ IImage* PPM::collage(const char* direction,IImage* second_image)
     }
 }
 
-//==file methods //TODO: to be able to have comments anywhere
+//==file methods 
 
 PPM &readPPMFromASCIIFile(std::ifstream &infile)
 {
-    std::cout << "Im inside read PPM from ascii file" << endl;
     //== reads comments and dimensions
     char newline;
     char space;
@@ -397,18 +373,15 @@ PPM &readPPMFromASCIIFile(std::ifstream &infile)
     int num_rows;
     int colourscale;
     infile.get(newline);
-    if (infile.peek() == '#')
+    if (infile.peek() == '#') //if a comment
     {
-        std::cout << "Im inside a comment!" << endl;
         char hash;
         infile.get(hash);
         infile.get(space);
         char comment[MAX_COMMENT_SIZE];
         infile.getline(comment, MAX_COMMENT_SIZE);
-        std::cout << comment;
         infile >> num_col;
         infile >> num_rows;
-        std::cout << "Dimensions are rows" << num_rows << "Xcol" << num_col << endl;
         infile >> colourscale;
         infile.get(newline);
     }
@@ -417,18 +390,15 @@ PPM &readPPMFromASCIIFile(std::ifstream &infile)
         infile >> num_col;
         infile >> num_rows;
         infile.get(newline);
-        std::cout << "Dimensions are rows" << num_rows << "X col" << num_col << endl;
         infile >> colourscale;
         infile.get(newline);
     }
 
     PPM *new_PPM = new PPM(num_rows, num_col);
     new_PPM->m_colourscale = colourscale;
-    cout << "Colourscale is" << new_PPM->m_colourscale << endl;
 
-    std::cout << "Ill be inputting values" << endl;
     //==inputting bitmap
-    int in_value_R; //FIXME: test!!
+    int in_value_R; 
     int in_value_G;
     int in_value_B;
     for (int i = 0; i < num_rows; i++)
@@ -436,30 +406,21 @@ PPM &readPPMFromASCIIFile(std::ifstream &infile)
         for (int j = 0; j < num_col; j++)
         {
             infile >> in_value_R;
-            //cout<<value_R<<" ";
             infile >> in_value_G;
-            //cout<<value_G<<" ";
             infile >> in_value_B;
-            //cout<<value_B<<" ";
             unsigned char value_R = fromIntToChar(in_value_R);
             unsigned char value_G = fromIntToChar(in_value_G);
             unsigned char value_B = fromIntToChar(in_value_B);
 
-            std::cout << "At row[" << i << "] col[" << j << "] = ";
             new_PPM->m_bitmap[i][j] = {value_R, value_G, value_B};
-            cout << (int)new_PPM->m_bitmap[i][j].m_R << " "
-                 << (int)new_PPM->m_bitmap[i][j].m_G << " "
-                 << (int)new_PPM->m_bitmap[i][j].m_B << "| ";
         }
-        std::cout << endl;
     }
-    std::cout << "Ended inputting file" << endl;
+    std::cout << "Succesfully read PPM from ASCII encoded file" << endl;
     return *new_PPM;
 }
 
 PPM &readPPMFromBinaryFile(std::ifstream &infile)
 {
-    std::cout << "Im inside read PPM from binary file" << endl;
     //== reads comments and dimensions
     char newline;
     char space;
@@ -467,37 +428,30 @@ PPM &readPPMFromBinaryFile(std::ifstream &infile)
     int num_rows;
     int colourscale;
     infile.get(newline);
-    if (infile.peek() == '#')
+    if (infile.peek() == '#') //if a comment
     {
-        std::cout << "Im inside a comment!" << endl;
         char hash;
         infile.get(hash);
         infile.get(space);
         char comment[MAX_COMMENT_SIZE];
         infile.getline(comment, MAX_COMMENT_SIZE);
-        std::cout << comment;
         infile >> num_col;
         infile >> num_rows;
-        std::cout << "Dimensions are rows" << num_rows << "Xcol" << num_col << endl;
         infile >> colourscale;
         infile.get(newline);
     }
     else
     {
-        cout << "No comment to input!" << endl;
         infile >> num_col;
         infile >> num_rows;
         infile.get(newline);
-        std::cout << "Dimensions are rows" << num_rows << "X col" << num_col << endl;
         infile >> colourscale;
         infile.get(newline);
     }
 
     PPM *new_PPM = new PPM(num_rows, num_col);
     new_PPM->m_colourscale = colourscale;
-    cout << "Colourscale is" << new_PPM->m_colourscale << endl;
 
-    std::cout << "Ill be inputting values" << endl;
     //==inputting bitmap
     for (int i = 0; i < num_rows; i++)
     {
@@ -510,21 +464,16 @@ PPM &readPPMFromBinaryFile(std::ifstream &infile)
             infile.read(value_G_ptr, 1);
             infile.read(value_B_ptr, 1);
             new_PPM->m_bitmap[i][j] = {(unsigned char)*value_R_ptr, (unsigned char)*value_G_ptr, (unsigned char)*value_B_ptr};
-            cout << (int)new_PPM->m_bitmap[i][j].m_R << " "
-                 << (int)new_PPM->m_bitmap[i][j].m_G << " "
-                 << (int)new_PPM->m_bitmap[i][j].m_B << "| ";
         }
-        std::cout << endl;
     }
-    std::cout << "Ended inputting file" << endl;
+    std::cout << "Successfully read PPM from binary encoded file." << endl;
     return *new_PPM;
 }
 
 void PPM::writeToASCIIFile(std::ofstream &outfile)
 {
-    std::cout << "Im inside write PPMTOASCIIfile" << endl;
     //==writes magic number
-    const char magic_number[3] = "P3";
+    const char magic_number[3] = "P3"; //magic number for ASCII encoded PPM file
     outfile << magic_number << "\n";
 
     //==writes comment
@@ -540,29 +489,26 @@ void PPM::writeToASCIIFile(std::ofstream &outfile)
 
     //==writes greyscale
     outfile << m_colourscale << endl;
-    std::cout << "Writing colourscale " << m_colourscale << endl;
 
     //==writes bitmap
     for (int i = 0; i < rows; i++)
     {
         for (int j = 0; j < col; j++)
         {
-            //outfile<<obj.m_bitmap[i][j]<<" ";
             outfile << (int)m_bitmap[i][j].m_R << " "
                     << (int)m_bitmap[i][j].m_G << " "
                     << (int)m_bitmap[i][j].m_B << " ";
         }
         outfile << endl;
     }
-    std::cout << "Ended inputting file" << endl;
+    std::cout << "Successfully wrote PPM to ASCII encoded file" << endl;
 }
 
 // Binary
 void PPM::writeToBinaryFile(std::ofstream &outfile)
 {
-    std::cout << "Im inside write PPMToBinaryfile" << endl;
     //==writes magic number
-    const char magic_number[3] = "P6";
+    const char magic_number[3] = "P6"; //magic number for binary encoded PPM file
     outfile << magic_number << "\n";
 
     //==writes comment
@@ -585,6 +531,6 @@ void PPM::writeToBinaryFile(std::ofstream &outfile)
         {
             outfile << m_bitmap[i][j];
         }
-        //outfile<<endl;
     }
+    cout<<"Successfully wrote PPM to binary encoded file"<<endl;
 }

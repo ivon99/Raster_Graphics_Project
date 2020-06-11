@@ -36,13 +36,6 @@ class List{
   //--operators overloading
   T& operator[](int index);
   const T& operator[](int index)const;
-  //friend std::ostream& operator<<(std::ostream out,const List& object);
-   
-  //--(de)serialization (file methods)-- 
-  // !! Only works if T has serialize(outFile) and constructor from file
-  void serialize(std::ofstream& outFile);
-  void deserialize(std::ifstream& inFile) const;
-  
 };
 
 template <typename T>
