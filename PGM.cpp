@@ -181,7 +181,7 @@ void PGM::negative()
             }
         }
     }
-    cout << "I've successsfully negated image " << m_filename << endl;
+    cout << "Successsfully negated image " << m_filename << endl;
 }
 
 void PGM::monochrome()
@@ -239,7 +239,7 @@ IImage *PGM::rotate(const char *direction)
                 tmp_row--;
             }
         }
-        cout << "I have performed right rotation for image " << m_filename << endl;
+        cout << "Performed right rotation for image " << m_filename << endl;
         return new_PGM;
     }
     else
@@ -257,7 +257,7 @@ IImage *PGM::collage(const char *direction, IImage *second_image)
     int second_image_num_col = second_image->getNumCol();    
     if ((first_image_num_rows != second_image_num_rows)  //checks if dimensons of images are the same
        || (first_image_num_col != second_image_num_col) 
-       || (strcmp("PBM", second_image->getType())!=0))      //checks if types of images are the same
+       || (strcmp("PGM", second_image->getType())!=0))      //checks if types of images are the same
     {
         cout << "Unable to apply collage for images " << m_filename << " and " << second_image->getFilename() << " ."
              << "Collage images should be of the same type and dimensions!" << endl;
@@ -291,7 +291,7 @@ IImage *PGM::collage(const char *direction, IImage *second_image)
                 col_num++;
             }
         }
-        cout << "Ive sucesfully completed horizontal collage" << endl;
+        cout << "Successfully completed horizontal collage" << endl;
         return new_PGM;
     }
 
@@ -320,7 +320,7 @@ IImage *PGM::collage(const char *direction, IImage *second_image)
             }
             row_num++;
         }
-        cout << "Ive sucesfully completed horizontal collage" << endl;
+        cout << "Successfully completed vertical collage" << endl;
         return new_PGM;
     }
     else
@@ -340,6 +340,7 @@ PGM &readPGMFromASCIIFile(std::ifstream &infile)
     int num_col;
     int num_rows;
     int grayscale;
+    infile.get(newline);
     infile.get(newline);
     if (infile.peek() == '#')
     {

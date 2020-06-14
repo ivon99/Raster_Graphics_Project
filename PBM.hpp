@@ -19,9 +19,6 @@ class PBM : public IImage
   char *m_filename;  ///< stores filename from which the image is imported
 
   void copyFrom(const PBM &other);
-  /// extracts bits values from a byte
-  /// &returns: a pointer to an array of values
-  int *extractBits(char *ch);
   /// converts bit sequence of values to a byte
   /// &returns: a byte
   char convertBinaryToChar(int int_sequence[]);

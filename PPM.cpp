@@ -6,7 +6,7 @@
 using namespace std;
 const int MAX_COMMENT_SIZE = 1000;
 /// constants representing intensity(amount of perceived light)
-/// for every of the RGB colours 
+/// for every of the RGB colours
 const float R_LUMINANCE = 0.2126; ///< perceived luminance for red colour
 const float G_LUMINANCE = 0.7152; ///< perceived luminance for green colour
 const float B_LUMINANCE = 0.0722; ///<perceived luminance for blue colour
@@ -75,8 +75,8 @@ PPM::PPM(int rows, int col)
         {
             m_bitmap[i][j] = {0, 0, 0};
         }
-    } 
-   // std::cout << "PPM constructor called, created map with dimensions rows:" << m_rows << "x col:" << m_col << endl;
+    }
+    // std::cout << "PPM constructor called, created map with dimensions rows:" << m_rows << "x col:" << m_col << endl;
 }
 
 PPM::PPM(const PPM &other)
@@ -113,17 +113,17 @@ const char *PPM::getFilename() const
     return m_filename;
 }
 
-int PPM::getNumRows() const 
+int PPM::getNumRows() const
 {
-   return m_rows;
+    return m_rows;
 }
 
 int PPM::getNumCol() const
 {
-return m_col;
+    return m_col;
 }
 
-Pixel PPM::getAtIndex(int row, int col, int unused) const  
+Pixel PPM::getAtIndex(int row, int col, int unused) const
 {
     unused--;
     return m_bitmap[row][col];
@@ -131,7 +131,8 @@ Pixel PPM::getAtIndex(int row, int col, int unused) const
 
 char PPM::getAtIndex(int row, int col) const
 {
-    row++; col--; 
+    row++;
+    col--;
     return 0;
 }
 
@@ -139,7 +140,9 @@ char PPM::getAtIndex(int row, int col) const
 // not defined for PPM as pixels encoded as RGB
 void PPM::setAtIndex(int row, int col, char value)
 {
-    row--;col++; value--;
+    row--;
+    col++;
+    value--;
 }
 
 void PPM::setFilname(const char *filename)
@@ -162,7 +165,7 @@ void PPM::print()
 }
 
 //==image methods
-void PPM::grayscale() //TODO:check if it is all grey
+void PPM::grayscale()
 {
     PPM *tmp = new PPM(m_rows, m_col);
     delete[] tmp->m_filename;
@@ -172,22 +175,21 @@ void PPM::grayscale() //TODO:check if it is all grey
 
     int greyscale_pixels = 0;
     int all_pixels = 0;
-    for(int i=0; i<m_rows;i++) //checks if picture is already in greyscale
+    for (int i = 0; i < m_rows; i++) //checks if picture is already in greyscale
     {
-        for(int j=0; j<m_col;j++)
-        {   
+        for (int j = 0; j < m_col; j++)
+        {
             all_pixels++;
-            if(m_bitmap[i][j].isGrey())
-            {  
-               greyscale_pixels++;
+            if (m_bitmap[i][j].isGrey())
+            {
+                greyscale_pixels++;
             }
-            
         }
     }
-    if(greyscale_pixels==(all_pixels))
+    if (greyscale_pixels == (all_pixels))
     {
-        cout<<"Image "<<m_filename<< "is already in greyscale!"<<endl;
-        return ;
+        cout << "Image " << m_filename << "is already in greyscale!" << endl;
+        return;
     }
 
     for (int i = 0; i < m_rows; i++)
@@ -200,10 +202,9 @@ void PPM::grayscale() //TODO:check if it is all grey
             tmp->m_bitmap[i][j].m_B = luminance;
         }
     }
-    cout<<"I've succesfully applied grayscale to "<<m_filename<<"."<<endl;
+    cout << "Successfully applied grayscale to " << m_filename << "." << endl;
     *this = *tmp;
 }
-
 
 void PPM::negative()
 {
@@ -229,21 +230,21 @@ void PPM::monochrome()
     {
         for (int j = 0; j < m_col; j++)
         {
-            if(m_bitmap[i][j].isWhite()==false) //if not a white pixel
+            if (m_bitmap[i][j].isWhite() == false) //if not a white pixel
             {
-                m_bitmap[i][j] = {0, 0, 0};     //turn to black
+                m_bitmap[i][j] = {0, 0, 0}; //turn to black
             }
         }
     }
     cout << "Succesfully applied monochrome to image " << m_filename << endl;
 }
 
-IImage* PPM::rotate(const char *direction)
+IImage *PPM::rotate(const char *direction)
 {
     PPM *new_PPM = new PPM(m_col, m_rows);
-    new_PPM->m_filename= new char[strlen(m_filename)+1];
-    strcpy(new_PPM->m_filename,m_filename);
-    new_PPM->m_colourscale=m_colourscale;
+    new_PPM->m_filename = new char[strlen(m_filename) + 1];
+    strcpy(new_PPM->m_filename, m_filename);
+    new_PPM->m_colourscale = m_colourscale;
 
     if (strcmp(direction, "left") == 0)
     {
@@ -258,7 +259,7 @@ IImage* PPM::rotate(const char *direction)
             tmp--;
         }
         cout << "Successfully performed left rotation on image " << m_filename << endl;
-       return new_PPM;
+        return new_PPM;
     }
 
     if (strcmp(direction, "right") == 0)
@@ -274,7 +275,7 @@ IImage* PPM::rotate(const char *direction)
             }
         }
         cout << "Successfully performed right rotation on image" << m_filename << endl;
-       return new_PPM;
+        return new_PPM;
     }
     else
     {
@@ -283,29 +284,28 @@ IImage* PPM::rotate(const char *direction)
     }
 }
 
-IImage* PPM::collage(const char* direction,IImage* second_image) 
+IImage *PPM::collage(const char *direction, IImage *second_image)
 {
     int first_image_num_rows = m_rows;
     int first_image_num_col = m_col;
     int second_image_num_rows = second_image->getNumRows();
     int second_image_num_col = second_image->getNumCol();
-    if ((first_image_num_rows != second_image_num_rows) //checks dimensions of images are the same
-       || (first_image_num_col != second_image_num_col) 
-       || (strcmp("PBM", second_image->getType())!=0))  //checks if types are the same
-     {
+    if ((first_image_num_rows != second_image_num_rows)                                                    //checks dimensions of images are the same
+        || (first_image_num_col != second_image_num_col) || (strcmp("PPM", second_image->getType()) != 0)) //checks if types are the same
+    {
         cout << "Unable to apply collage for images " << m_filename << " and " << second_image->getFilename() << " ."
-         << "Collage images should be of the same type and dimensions!" << endl;
+             << "Collage images should be of the same type and dimensions!" << endl;
     }
     //==horizontal collage
     if (strcmp(direction, "horizontal") == 0)
     {
-        int new_size =first_image_num_col+second_image_num_col;
+        int new_size = first_image_num_col + second_image_num_col;
         PPM *new_PPM = new PPM(first_image_num_rows, new_size);
-         new_PPM->m_colourscale=m_colourscale;
+        new_PPM->m_colourscale = m_colourscale;
         //==joining first table
-        for (int i = 0; i <first_image_num_rows; i++)
+        for (int i = 0; i < first_image_num_rows; i++)
         {
-            for (int j = 0; j <first_image_num_col; j++)
+            for (int j = 0; j < first_image_num_col; j++)
             {
                 new_PPM->m_bitmap[i][j] = m_bitmap[i][j];
             }
@@ -318,7 +318,7 @@ IImage* PPM::collage(const char* direction,IImage* second_image)
             col_num = 0;
             for (int j = second_image_num_col; j < new_size; j++)
             {
-                new_PPM->m_bitmap[i][j] =second_image->getAtIndex(i,col_num,0);
+                new_PPM->m_bitmap[i][j] = second_image->getAtIndex(i, col_num, 0);
                 col_num++;
             }
         }
@@ -329,13 +329,13 @@ IImage* PPM::collage(const char* direction,IImage* second_image)
     //==vertical collage
     if (strcmp(direction, "vertical") == 0)
     {
-        int new_size =first_image_num_rows+second_image_num_rows ;
-        PPM *new_PPM = new PPM(new_size,first_image_num_col);
-        new_PPM->m_colourscale=m_colourscale;
+        int new_size = first_image_num_rows + second_image_num_rows;
+        PPM *new_PPM = new PPM(new_size, first_image_num_col);
+        new_PPM->m_colourscale = m_colourscale;
         //==joining first table
-        for (int i = 0; i <first_image_num_rows; i++)
+        for (int i = 0; i < first_image_num_rows; i++)
         {
-            for (int j = 0; j <first_image_num_col; j++)
+            for (int j = 0; j < first_image_num_col; j++)
             {
                 new_PPM->m_bitmap[i][j] = m_bitmap[i][j];
             }
@@ -343,26 +343,26 @@ IImage* PPM::collage(const char* direction,IImage* second_image)
 
         //==joining second table
         int row_num = 0;
-        for (int i =second_image_num_rows; i < new_size; i++)
+        for (int i = second_image_num_rows; i < new_size; i++)
         {
-            for (int j = 0; j <second_image_num_col; j++)
+            for (int j = 0; j < second_image_num_col; j++)
             {
-                new_PPM->m_bitmap[i][j] =second_image->getAtIndex(row_num,j,0);
+                new_PPM->m_bitmap[i][j] = second_image->getAtIndex(row_num, j, 0);
             }
             row_num++;
         }
-        cout << "Successfully completed horizontal collage" << endl;
+        cout << "Successfully completed vertical collage" << endl;
         return new_PPM;
     }
 
     else
-    { 
+    {
         cout << "Invalid collage direction: options are \"horizontal\" and \"vertical\"." << endl;
         return this;
     }
 }
 
-//==file methods 
+//==file methods
 
 PPM &readPPMFromASCIIFile(std::ifstream &infile)
 {
@@ -398,7 +398,7 @@ PPM &readPPMFromASCIIFile(std::ifstream &infile)
     new_PPM->m_colourscale = colourscale;
 
     //==inputting bitmap
-    int in_value_R; 
+    int in_value_R;
     int in_value_G;
     int in_value_B;
     for (int i = 0; i < num_rows; i++)
@@ -532,5 +532,5 @@ void PPM::writeToBinaryFile(std::ofstream &outfile)
             outfile << m_bitmap[i][j];
         }
     }
-    cout<<"Successfully wrote PPM to binary encoded file"<<endl;
+    cout << "Successfully wrote PPM to binary encoded file" << endl;
 }

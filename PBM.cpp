@@ -25,24 +25,6 @@ void PBM::copyFrom(const PBM &other)
   }
 }
 
-int *extractBits(char *ch)
-{
-  int size = sizeof(ch);
-  int *bit_value = new int[size];
-  for (int i = 0; i < size; i++)
-  {
-    bit_value[i] = 0;
-  }
-  int value = int(*ch);
-  //int tmp = value; //FIXME : ??
-  for (int i = 0; value > 0; i++)
-  {
-    bit_value[i] = value % 2;
-    value = value / 2;
-  }
-  return bit_value;
-}
-
 char PBM::convertBinaryToChar(int int_sequence[])
 {
   char value = 0;
@@ -288,7 +270,7 @@ IImage *PBM::collage(const char *direction, IImage *second_image)
         col_num++;
       }
     }
-    cout << "Ive sucesfully completed horizontal collage" << endl;
+    cout << "Successfully completed horizontal collage" << endl;
     return new_PBM;
   }
 
@@ -315,7 +297,7 @@ IImage *PBM::collage(const char *direction, IImage *second_image)
       }
       row_num++;
     }
-    cout << "Ive sucesfully completed horizontal collage" << endl;
+    cout << "Successfully completed vertical collage" << endl;
     return new_PBM;
   }
 
@@ -366,7 +348,7 @@ PBM &readPBMFromASCIIFile(std::ifstream &infile)
       new_PBM->m_bitmap[i][j] = value;
     }
   }
-  std::cout << "Succesfully read PBM image from file" << endl;
+  std::cout << "Succesfully read PBM image from ASCII encoded file" << endl;
   return *new_PBM;
 }
 
@@ -402,27 +384,26 @@ PBM &readPBMFromBinaryFile(std::ifstream &infile)
   PBM *new_PBM = new PBM(num_rows, num_col);
 
   //==reading bitmap
-  int ctr = 0;
-  while (!infile.eof())
+  char* read_byte = new char;
+  int ctr_read_bytes=0;
+  for (int i = 0; i < num_rows; i++ )
   {
-    char *value_ptr = new char; //reading one byte at a time
-    infile.read(value_ptr, 1);
-    if ((strcmp(value_ptr, "\n") == 0) //disregarding spaces, newlines and null characters
-        || (strcmp(value_ptr, " ") == 0) || (int(*value_ptr) == 0))
-      ;
-    else
+    for (int j = 0; j < num_col; j++ )
     {
-      int *extracted_bits = extractBits(value_ptr); //extracting bit values for every byte
-      int row = 0;
-      for (int j = num_col - 1; j >= 0; j--)
+      if ( j%8 == 0 ) //if the column is a multiple of 8
       {
-        new_PBM->m_bitmap[ctr][row] = extracted_bits[j]; //writing bits to bitmap
-        row++;
+       infile.read(read_byte,1); //read a byte from file
+        ctr_read_bytes++;
       }
-      ctr++;
+      int bitshift = 0;  
+      bitshift = 7-(j % 8);   
+      int bit=0;
+      bit = (*read_byte >> bitshift) & 1; //extract the bit by shifting by <bitshift>
+      new_PBM->m_bitmap[i][j]=bit;
     }
   }
-  std::cout << "Succesfully read PBM image from file." << endl;
+
+  cout << "Read PBM image from binary encoded file." << endl;
   return *new_PBM;
 }
 

@@ -7,7 +7,7 @@ const int MAX_COMMAND_SIZE = 20;
 void help()
 {
   cout << "The following commands are supported:\n"
-       << "load <filename>  \t\t loads an image from filename and starts a new session "
+       << "load <filename>  \t\t loads an image from filename and starts a new session\n"
        << "add <filename>   \t\t adss a new image to current session \n"
        << "close            \t\t closes currently opened files\n"
        << "save             \t\t applies transformations and saves the currently opened files\n"
@@ -18,10 +18,10 @@ void help()
        << "rotate <direction>\t\t rotates images to the left or right\n"
        << "undo             \t\t removes the last transformation\n"
        << "session info     \t\t prints information about opened images and transformations in session\n"
-       << "switch <session> \t\t switches to session with <session> id"
-       << "collage <direction> <image1> <image2> <outimage>\t\t collages two images\n"
+       << "switch <session> \t\t switches to session with <session id>\n"
+       << "collage <direction> <image1> <image2> <outimage> collages two images\n"
        << "exit             \t\t exits programs\n"
-       << "help            \t\t prints information about supported commands\n"
+       << "help            \t\t prints information about supported commands"
        << endl;
 }
 

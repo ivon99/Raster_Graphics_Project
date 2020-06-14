@@ -13,6 +13,15 @@ System::System()
 
 Session &System::switchSessions(int sessionID)
 {
+  //return *m_loaded_sessions.getElement(sessionID);
+  if(((sessionID-1)>m_loaded_sessions.getSize())||((sessionID-1)<0))
+  {
+    cout<<"No session with this ID!"<<endl;
+    return *m_loaded_sessions.getElement(0);
+  }
+  m_current_sessionID = sessionID-1;
+  cout<<"You switched to session with ID:" <<sessionID<<"!"<<endl;
+  m_loaded_sessions[m_current_sessionID]->sessionInfo();
   return *m_loaded_sessions.getElement(sessionID);
 }
 
@@ -24,7 +33,7 @@ void System::addSession(Session *session)
 void System::help()
 {
   cout << "The following commands are supported:\n"
-       << "load <filename>  \t\t loads an image from filename and starts a new session "
+       << "load <filename>  \t\t loads an image from filename and starts a new session\n"
        << "add <filename>   \t\t adss a new image to current session \n"
        << "close            \t\t closes currently opened files\n"
        << "save             \t\t applies transformations and saves the currently opened files\n"
@@ -35,10 +44,10 @@ void System::help()
        << "rotate <direction>\t\t rotates images to the left or right\n"
        << "undo             \t\t removes the last transformation\n"
        << "session info     \t\t prints information about opened images and transformations in session\n"
-       << "switch <session> \t\t switches to session with <session> id"
-       << "collage <direction> <image1> <image2> <outimage>\t\t collages two images\n"
+       << "switch <sessionID> \t\t switches to session with <session id>\n"
+       << "collage <direction> <image1> <image2> <outimage> collages two images\n"
        << "exit             \t\t exits programs\n"
-       << "help            \t\t prints information about supported commands\n"
+       << "help            \t\t prints information about supported commands"
        << endl;
 }
 
@@ -50,11 +59,22 @@ int System::run()
   command[0] = 'z';
 
   //loads first image 
+  /*
   cin >> filename;
   Session *new_session = new Session();
   new_session->load(filename);
   m_loaded_sessions.addElement(new_session);
-  m_current_sessionID = m_loaded_sessions.getSize() - 1;
+  m_current_sessionID = m_loaded_sessions.getSize() - 1; */
+  Session *new_session = new Session();
+  while(cin.peek()!='\n')
+  {
+    cin>>filename;
+    new_session->load(filename);  // adds image to the new session
+
+  }
+  m_loaded_sessions.addElement(new_session); //adds session to list of sessions
+  m_current_sessionID = m_loaded_sessions.getSize() - 1;  //sets current session ID
+
 
   while (strcmp(command, "exit") != 0)
   {
@@ -84,6 +104,7 @@ int System::run()
     if (strcmp(command, "save") == 0)
     {
       m_loaded_sessions[m_current_sessionID]->save();
+      cout<<"Successfully saved images to their files"<<endl;
       continue;
     }
     if (strcmp(command, "saveas") == 0)
@@ -139,7 +160,8 @@ int System::run()
     {
       int session_ID;
       cin >> session_ID;
-      m_current_sessionID = session_ID;
+      //m_current_sessionID = session_ID;
+      switchSessions(session_ID);
       continue;
     }
     if (strcmp(command, "collage") == 0)

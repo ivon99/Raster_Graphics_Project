@@ -64,14 +64,20 @@ IImage *Session::load(const char *filename)
             new_PBM->setFilname(filename);
             m_loaded_images.addElement(new_PBM); 
             infile.close();
+            cout<<"Image \""<<filename<<"\" added."<<endl;
             return new_PBM;
         }
         if (strcmp(magic_number, "P4") == 0)
         {
-            IImage *new_PBM = &readPBMFromBinaryFile(infile);
+            infile.close();
+            std::ifstream binfile;
+            binfile.open(filename, std::ios::binary);
+            binfile>>magic_number;
+            IImage *new_PBM = &readPBMFromBinaryFile(binfile);
             new_PBM->setFilname(filename);
             m_loaded_images.addElement(new_PBM); 
-            infile.close();
+            binfile.close();
+            cout<<"Image \""<<filename<<"\" added."<<endl;
             return new_PBM;
         }
         if (strcmp(magic_number, "P2") == 0)
@@ -80,6 +86,7 @@ IImage *Session::load(const char *filename)
             new_PGM->setFilname(filename);
             m_loaded_images.addElement(new_PGM);
             infile.close();
+            cout<<"Image \""<<filename<<"\" added."<<endl;
             return new_PGM;
         }
         if (strcmp(magic_number, "P5") == 0)
@@ -88,6 +95,7 @@ IImage *Session::load(const char *filename)
             new_PGM->setFilname(filename);
             m_loaded_images.addElement(new_PGM);
             infile.close();
+            cout<<"Image \""<<filename<<"\" added."<<endl;
             return new_PGM;
         }
         if (strcmp(magic_number, "P3") == 0)
@@ -96,6 +104,7 @@ IImage *Session::load(const char *filename)
             new_PPM->setFilname(filename);
             m_loaded_images.addElement(new_PPM);
             infile.close();
+            cout<<"Image \""<<filename<<"\" added."<<endl;
             return new_PPM;
         }
         if (strcmp(magic_number, "P6") == 0)
@@ -104,6 +113,7 @@ IImage *Session::load(const char *filename)
             new_PPM->setFilname(filename);
             m_loaded_images.addElement(new_PPM);
             infile.close();
+            cout<<"Image \""<<filename<<"\" added."<<endl;
             return new_PPM;
         }
     }
@@ -143,6 +153,25 @@ void Session::save()
 {
     int num_loaded = m_loaded_images.getSize();
     int num_pending_commands = m_pending_commands.getSize();
+    if(num_pending_commands==0)  //if no pending transformations, just save images back
+    {
+        for(int i=0; i<num_loaded;i++)
+        {
+            const char *filename = m_loaded_images[i]->getFilename();
+                std::ofstream outfile;
+                outfile.open(filename);
+                if (outfile)
+                {
+                    m_loaded_images[i]->writeToASCIIFile(outfile);
+                }
+                else
+                {
+                    cout << "Unable to save " << filename << endl;
+                }
+                outfile.close();
+        }
+    }
+
     for (int i = 0; i < num_pending_commands; i++)
     {
         const char *pending_command = m_pending_commands[i]->getCommand();
@@ -245,7 +274,6 @@ void Session::save_as(const char* image_filename, const char * save_to_filename)
     if (outfile)
     {
        // m_loaded_images[0]->writeToASCIIFile(outfile);
-      // get_loaded_image_by_filename(image_filename)->writeToASCIIFile(outfile);
       int index = get_index_of_loaded_image_by_filename(image_filename);
       if(index>=0)
       {
@@ -314,7 +342,7 @@ void Session::sessionInfo()
     for (int i = 0; i < num_pending_tranformations; i++)
     {
         m_pending_commands[i]->printCommand();
-        cout << ", ";
+        cout << " ";
     }
     cout << endl;
 }
