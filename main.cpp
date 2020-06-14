@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+#include "mainpage.dox"
 #include "System.hpp"
 using namespace std;
 const int MAX_COMMAND_SIZE = 20;
