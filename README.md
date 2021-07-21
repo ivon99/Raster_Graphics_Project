@@ -7,8 +7,8 @@ The program supports sessions to which the user can add photos of any of the sup
 
 Supported image modifications are:
 
-= grayscale
-= monochrome
-= negative
-= rotate (left/right)
+= grayscale/
+= monochrome/
+= negative/
+= rotate (left/right)/
 = collage of two images (horizontal/vertical)
